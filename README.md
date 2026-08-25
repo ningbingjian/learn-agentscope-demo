@@ -14,7 +14,10 @@ learn-agentscope-demo
 ├── 06-AgentInterrupt  # 按 userId + sessionId 精准中断会话，端口 18081
 ├── 07-StructuredOutput # Java 类型约束 Agent 最终结构化结果，端口 18081
 ├── 08-PermissionHITL # Tool 权限 ASK 与人工确认后恢复执行，端口 18081
-└── 09-MiddlewareLifecycle # Middleware 五个生命周期入口，端口 18081
+├── 09-MiddlewareLifecycle # Middleware 五个生命周期入口，端口 18081
+├── 10-ContextAndStateStore # RuntimeContext / AgentState / StateStore，端口 18081
+├── 11-AgentObserve # observe() 注入消息但不触发推理，端口 18081
+└── 12-HarnessWorkspace # WorkspaceManager 与 Harness 工作区文件，端口 18081
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -27,7 +30,7 @@ learn-agentscope-demo
 
 ## 配置 API Key
 
-九个模块统一从环境变量读取 DashScope API Key。启动任一模块前执行：
+十二个模块统一从环境变量读取 DashScope API Key。启动任一需要真实模型的模块前执行：
 
 ```bash
 export DASHSCOPE_API_KEY="你的 DashScope API Key"
@@ -127,3 +130,30 @@ SSE 事件流测试见 [`04-StreamingEvents/README.md`](04-StreamingEvents/READM
 
 实现 `MiddlewareBase`，观察并统计 `onAgent`、`onReasoning`、`onActing`、`onModelCall`、`onSystemPrompt` 五个生命周期入口及洋葱模型，见
 [`09-MiddlewareLifecycle/README.md`](09-MiddlewareLifecycle/README.md)。
+
+## 10-ContextAndStateStore
+
+```bash
+./mvnw -pl 10-ContextAndStateStore spring-boot:run
+```
+
+系统拆解 `RuntimeContext -> AgentState -> AgentStateStore`，并通过 `InMemoryAgentStateStore` 与 `JsonFileAgentStateStore` 对比 JVM 内状态和跨重启文件持久化，见
+[`10-ContextAndStateStore/README.md`](10-ContextAndStateStore/README.md)。
+
+## 11-AgentObserve
+
+```bash
+./mvnw -pl 11-AgentObserve spring-boot:run
+```
+
+使用 `ResearcherAgent -> WriterAgent.observe(...)` 验证消息可以注入另一个 Agent 的上下文而不触发模型推理，并说明 2.0.1 中 observe 默认状态槽位的边界，见
+[`11-AgentObserve/README.md`](11-AgentObserve/README.md)。
+
+## 12-HarnessWorkspace
+
+```bash
+./mvnw -pl 12-HarnessWorkspace spring-boot:run
+```
+
+正式学习 Harness Workspace 与 `WorkspaceManager`，直接读取 `AGENTS.md / MEMORY.md / KNOWLEDGE.md`、列出知识文件、写入学习笔记，并区分 Workspace 与 AgentState，见
+[`12-HarnessWorkspace/README.md`](12-HarnessWorkspace/README.md)。
