@@ -1,0 +1,12 @@
+target/
+.idea/
+*.iml
+.DS_Store
+
+# Local secrets. Commit application-local.example.yml instead.
+**/src/main/resources/application-local.yml
+
+# AgentScope runtime data in every learning module; keep AGENTS.md.
+**/.agentscope/**
+!**/.agentscope/workspace/
+!**/.agentscope/workspace/AGENTS.md

@@ -1,0 +1,15 @@
+server:
+  port: 18081
+
+spring:
+  application:
+    name: 02-SessionMemory
+  config:
+    import: optional:classpath:application-local.yml
+
+agentscope:
+  model:
+    provider: dashscope
+  dashscope:
+    model-name: qwen-plus
+    stream: true
