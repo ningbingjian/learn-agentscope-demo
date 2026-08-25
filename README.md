@@ -10,7 +10,8 @@ learn-agentscope-demo
 ├── 02-SessionMemory   # HarnessAgent 会话记忆，端口 18081
 ├── 03-ToolCalling     # ReActAgent 调用 Java 工具，端口 18081
 ├── 04-StreamingEvents # AgentEvent 通过 SSE 流式输出，端口 18081
-└── 05-MultiUserConcurrency # 同会话串行、不同会话并行，端口 18081
+├── 05-MultiUserConcurrency # 同会话串行、不同会话并行，端口 18081
+└── 06-AgentInterrupt  # 按 userId + sessionId 精准中断会话，端口 18081
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -23,7 +24,7 @@ learn-agentscope-demo
 
 ## 配置 API Key
 
-五个模块统一从环境变量读取 DashScope API Key。启动任一模块前执行：
+六个模块统一从环境变量读取 DashScope API Key。启动任一模块前执行：
 
 ```bash
 export DASHSCOPE_API_KEY="你的 DashScope API Key"
@@ -87,3 +88,12 @@ SSE 事件流测试见 [`04-StreamingEvents/README.md`](04-StreamingEvents/READM
 
 多用户并发与会话串行化测试见
 [`05-MultiUserConcurrency/README.md`](05-MultiUserConcurrency/README.md)。
+
+## 06-AgentInterrupt
+
+```bash
+./mvnw -pl 06-AgentInterrupt spring-boot:run
+```
+
+按 `userId + sessionId` 精准中断指定会话、观察 `GenerateReason.INTERRUPTED`，以及 AgentScope Java 2.0.1 中 `HarnessAgent` 的 per-session interrupt API 差异，见
+[`06-AgentInterrupt/README.md`](06-AgentInterrupt/README.md)。
