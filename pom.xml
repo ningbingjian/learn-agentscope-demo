@@ -24,6 +24,7 @@
         <module>03-ToolCalling</module>
         <module>04-StreamingEvents</module>
         <module>05-MultiUserConcurrency</module>
+        <module>06-AgentInterrupt</module>
     </modules>
 
     <properties>
