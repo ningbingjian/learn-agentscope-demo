@@ -25,6 +25,9 @@
         <module>04-StreamingEvents</module>
         <module>05-MultiUserConcurrency</module>
         <module>06-AgentInterrupt</module>
+        <module>07-StructuredOutput</module>
+        <module>08-PermissionHITL</module>
+        <module>09-MiddlewareLifecycle</module>
     </modules>
 
     <properties>
