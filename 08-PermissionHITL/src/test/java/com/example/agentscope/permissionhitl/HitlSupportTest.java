@@ -27,7 +27,7 @@ class HitlSupportTest {
         Msg askingReply = Msg.builder()
                 .name("assistant")
                 .role(MsgRole.ASSISTANT)
-                .content(List.of(askingTool))
+                .content(askingTool)
                 .build();
 
         List<ToolUseBlock> pending = HitlSupport.findLatestAskingTools(List.of(askingReply));
