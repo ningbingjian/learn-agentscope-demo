@@ -4,12 +4,11 @@ server:
 spring:
   application:
     name: 05-MultiUserConcurrency
-  config:
-    import: optional:classpath:application-local.yml
 
 agentscope:
   model:
     provider: dashscope
   dashscope:
+    api-key: ${DASHSCOPE_API_KEY}
     model-name: qwen-plus
     stream: true

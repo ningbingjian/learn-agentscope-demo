@@ -132,27 +132,16 @@ AgentScope 基于 Reactor，`agent.call(...)` 返回 `Mono<Msg>`，表示一个�
 `application.yml` 指定模型提供商和模型名称：
 
 ```yaml
-spring:
-  config:
-    import: optional:classpath:application-local.yml
-
 agentscope:
   model:
     provider: dashscope
   dashscope:
+    api-key: ${DASHSCOPE_API_KEY}
     model-name: qwen-plus
     stream: true
 ```
 
-Spring Boot 启动时，DashScope Starter 会读取这些配置并创建一个 `Model` Bean。真实 Key 单独写在不会提交到 Git 的 `application-local.yml`：
-
-```yaml
-agentscope:
-  dashscope:
-    api-key: 你的测试 Key
-```
-
-从 GitHub 首次克隆时，可以复制同目录下的 `application-local.example.yml` 后直接填写 Key。
+Spring Boot 启动时，DashScope Starter 会读取这些配置并创建一个 `Model` Bean。`${DASHSCOPE_API_KEY}` 表示从同名环境变量获取真实 Key，避免把密钥写入代码仓库。
 
 ## 2. 创建 ReActAgent
 
@@ -226,9 +215,10 @@ export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 export PATH="$JAVA_HOME/bin:$PATH"
 ```
 
-确认 `application-local.yml` 已填写 Key，然后启动当前模块：
+设置环境变量并启动当前模块：
 
 ```bash
+export DASHSCOPE_API_KEY="你的 DashScope API Key"
 ./mvnw -pl 01-HelloWorld spring-boot:run
 ```
 

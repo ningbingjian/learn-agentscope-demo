@@ -187,13 +187,12 @@ export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 export PATH="$JAVA_HOME/bin:$PATH"
 ```
 
-确认 `src/main/resources/application-local.yml` 已填写测试 Key，然后单独启动当前模块：
+设置环境变量并单独启动当前模块：
 
 ```bash
+export DASHSCOPE_API_KEY="你的 DashScope API Key"
 ./mvnw -pl 02-SessionMemory spring-boot:run
 ```
-
-首次从 GitHub 克隆时，复制同目录的 `application-local.example.yml` 为 `application-local.yml` 后填写 Key。真实 Key 文件不会被 Git 提交。
 
 ## 测试会话恢复
 

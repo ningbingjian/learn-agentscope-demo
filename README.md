@@ -21,18 +21,15 @@ learn-agentscope-demo
 - Maven 3.9+（项目使用 Maven Wrapper，无需修改全局 Maven）
 - DashScope API Key
 
-## 本地 API Key
+## 配置 API Key
 
-真实 Key 写在各模块的 `src/main/resources/application-local.yml` 中。该文件已被 Git 忽略，GitHub 只会保存不含密钥的 `application-local.example.yml`。
-
-首次克隆项目后，以要学习的模块为例创建本地配置：
+五个模块统一从环境变量读取 DashScope API Key。启动任一模块前执行：
 
 ```bash
-cp 01-HelloWorld/src/main/resources/application-local.example.yml \
-   01-HelloWorld/src/main/resources/application-local.yml
+export DASHSCOPE_API_KEY="你的 DashScope API Key"
 ```
 
-然后在 `application-local.yml` 中直接写入自己的测试 Key。本机当前五个模块的本地配置已经保留，无需重新填写。
+环境变量只对当前终端会话生效，不会写入代码或提交到 GitHub。
 
 ## 编译
 

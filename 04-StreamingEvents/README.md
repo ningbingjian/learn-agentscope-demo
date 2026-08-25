@@ -171,13 +171,12 @@ Spring WebFlux 会完成 JSON 序列化和 SSE 文本编码。
 
 ## 启动
 
-确认 `src/main/resources/application-local.yml` 已填写测试 Key；首次克隆时可以复制同目录的 `application-local.example.yml`。
-
 在项目根目录执行：
 
 ```bash
 export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 export PATH="$JAVA_HOME/bin:$PATH"
+export DASHSCOPE_API_KEY="你的 DashScope API Key"
 ./mvnw -pl 04-StreamingEvents spring-boot:run
 ```
 

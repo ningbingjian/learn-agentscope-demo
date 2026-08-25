@@ -169,13 +169,12 @@ System Prompt 要求 Agent 在遇到算术问题时使用工具。工具的 `des
 
 ## 启动
 
-确认 `src/main/resources/application-local.yml` 已填写测试 Key；首次克隆时可以复制同目录的 `application-local.example.yml`。
-
 在项目根目录中执行：
 
 ```bash
 export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 export PATH="$JAVA_HOME/bin:$PATH"
+export DASHSCOPE_API_KEY="你的 DashScope API Key"
 ./mvnw -pl 03-ToolCalling spring-boot:run
 ```
 

@@ -199,10 +199,11 @@ public String pause(int seconds) {
 ```bash
 export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 export PATH="$JAVA_HOME/bin:$PATH"
+export DASHSCOPE_API_KEY="你的 DashScope API Key"
 ./mvnw -pl 05-MultiUserConcurrency spring-boot:run
 ```
 
-服务端口是 `18081`。测试 Key 保存在本机不会提交到 Git 的 `application-local.yml`；首次克隆时可以复制同目录的 `application-local.example.yml` 后填写。
+服务端口是 `18081`，真实 Key 只通过 `DASHSCOPE_API_KEY` 环境变量传入。
 
 ## 测试一：相同会话串行
 
