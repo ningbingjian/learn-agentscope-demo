@@ -11,7 +11,10 @@ learn-agentscope-demo
 ├── 03-ToolCalling     # ReActAgent 调用 Java 工具，端口 18081
 ├── 04-StreamingEvents # AgentEvent 通过 SSE 流式输出，端口 18081
 ├── 05-MultiUserConcurrency # 同会话串行、不同会话并行，端口 18081
-└── 06-AgentInterrupt  # 按 userId + sessionId 精准中断会话，端口 18081
+├── 06-AgentInterrupt  # 按 userId + sessionId 精准中断会话，端口 18081
+├── 07-StructuredOutput # Java 类型约束 Agent 最终结构化结果，端口 18081
+├── 08-PermissionHITL # Tool 权限 ASK 与人工确认后恢复执行，端口 18081
+└── 09-MiddlewareLifecycle # Middleware 五个生命周期入口，端口 18081
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -24,7 +27,7 @@ learn-agentscope-demo
 
 ## 配置 API Key
 
-六个模块统一从环境变量读取 DashScope API Key。启动任一模块前执行：
+九个模块统一从环境变量读取 DashScope API Key。启动任一模块前执行：
 
 ```bash
 export DASHSCOPE_API_KEY="你的 DashScope API Key"
@@ -97,3 +100,30 @@ SSE 事件流测试见 [`04-StreamingEvents/README.md`](04-StreamingEvents/READM
 
 按 `userId + sessionId` 精准中断指定会话、观察 `GenerateReason.INTERRUPTED`，以及 AgentScope Java 2.0.1 中 `HarnessAgent` 的 per-session interrupt API 差异，见
 [`06-AgentInterrupt/README.md`](06-AgentInterrupt/README.md)。
+
+## 07-StructuredOutput
+
+```bash
+./mvnw -pl 07-StructuredOutput spring-boot:run
+```
+
+使用 Java `record` 作为 Agent 最终结果契约，通过 `call(..., TicketAnalysis.class, context)` 和 `Msg#getStructuredData()` 直接得到强类型业务对象，见
+[`07-StructuredOutput/README.md`](07-StructuredOutput/README.md)。
+
+## 08-PermissionHITL
+
+```bash
+./mvnw -pl 08-PermissionHITL spring-boot:run
+```
+
+学习 Permission System 的 `ALLOW / DENY / ASK`，重点验证退款 Tool 命中 `ASK` 后返回 `PERMISSION_ASKING`，再通过 `ConfirmResult` 批准或拒绝并恢复同一会话，见
+[`08-PermissionHITL/README.md`](08-PermissionHITL/README.md)。
+
+## 09-MiddlewareLifecycle
+
+```bash
+./mvnw -pl 09-MiddlewareLifecycle spring-boot:run
+```
+
+实现 `MiddlewareBase`，观察并统计 `onAgent`、`onReasoning`、`onActing`、`onModelCall`、`onSystemPrompt` 五个生命周期入口及洋葱模型，见
+[`09-MiddlewareLifecycle/README.md`](09-MiddlewareLifecycle/README.md)。

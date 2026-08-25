@@ -34,14 +34,14 @@ class HitlSupportTest {
         Msg resumeMessage = HitlSupport.buildResumeMessage(true, pending);
 
         assertThat(pending).hasSize(1);
-        assertThat(pending.getFirst().getName()).isEqualTo("issue_refund");
+        assertThat(pending.get(0).getName()).isEqualTo("issue_refund");
         assertThat(resumeMessage.getMetadata()).containsKey(Msg.METADATA_CONFIRM_RESULTS);
 
         @SuppressWarnings("unchecked")
         List<ConfirmResult> results = (List<ConfirmResult>) resumeMessage.getMetadata()
                 .get(Msg.METADATA_CONFIRM_RESULTS);
         assertThat(results).hasSize(1);
-        assertThat(results.getFirst().isConfirmed()).isTrue();
-        assertThat(results.getFirst().getToolCall().getId()).isEqualTo("tool-call-1");
+        assertThat(results.get(0).isConfirmed()).isTrue();
+        assertThat(results.get(0).getToolCall().getId()).isEqualTo("tool-call-1");
     }
 }
