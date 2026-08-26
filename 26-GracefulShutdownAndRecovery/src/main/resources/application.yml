@@ -1,0 +1,27 @@
+server:
+  port: 18081
+  shutdown: graceful
+
+spring:
+  application:
+    name: 26-GracefulShutdownAndRecovery
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+agentscope:
+  model:
+    provider: dashscope
+  dashscope:
+    api-key: ${DASHSCOPE_API_KEY:}
+    model-name: qwen-plus
+    stream: true
+  admin:
+    enabled: true
+    write-enabled: true
+    write-token: ${AGENTSCOPE_ADMIN_TOKEN:demo-token}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,agentscope-status,agentscope-drain
