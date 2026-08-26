@@ -294,20 +294,29 @@ timeout-per-shutdown-phase = 40s
 Kubernetes：
 
 ```yaml
-terminationGracePeriodSeconds: 45
+terminationGracePeriodSeconds: 60
 ```
+
+还要算上：
+
+```text
+preStop sleep = 5s
+AgentScope JVM interrupt grace = 5s
+```
+
+所以不能只写一个刚好等于 shutdown timeout 的 Kubernetes grace period。这里使用 60 秒，给 preStop、Spring shutdown、AgentScope shutdown 和调度抖动留出额外余量。
 
 原则：
 
 ```text
 K8s grace
 >
-应用需要的正常退出时间
+preStop 时间 + 应用需要的正常退出时间
 ```
 
 否则 grace 到期后 Kubernetes 会进入强制终止，你前面做的优雅下线全部失去意义。
 
-实际项目要根据最长 Tool / Model budget 重新计算，不要机械复制 45 秒。
+实际项目要根据最长 Tool / Model budget 重新计算，不要机械复制 60 秒。
 
 ---
 
