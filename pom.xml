@@ -46,6 +46,9 @@
         <module>25-ExecutionResilience</module>
         <module>26-GracefulShutdownAndRecovery</module>
         <module>27-KubernetesProductionDeployment</module>
+        <module>28-MessageAndEventModel</module>
+        <module>29-ModelLayerAndRegistry</module>
+        <module>30-AdvancedTooling</module>
     </modules>
 
     <properties>
