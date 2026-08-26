@@ -43,6 +43,9 @@
         <module>22-AgentServiceAndDeployment</module>
         <module>23-DistributedStateAndStorage</module>
         <module>24-ObservabilityAndTracing</module>
+        <module>25-ExecutionResilience</module>
+        <module>26-GracefulShutdownAndRecovery</module>
+        <module>27-KubernetesProductionDeployment</module>
     </modules>
 
     <properties>
@@ -71,6 +74,16 @@
             <dependency>
                 <groupId>io.agentscope</groupId>
                 <artifactId>agentscope-extensions-agent-protocol</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-admin-spring-boot-starter</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-redis</artifactId>
                 <version>${agentscope.version}</version>
             </dependency>
             <dependency>
