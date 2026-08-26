@@ -20,7 +20,10 @@ learn-agentscope-demo
 ├── 12-HarnessWorkspace # WorkspaceManager 与 Harness 工作区文件，端口 18081
 ├── 13-HarnessMemory # Harness 两层长期记忆与 MemoryConfig，端口 18081
 ├── 14-ContextCompaction # summary + recent tail 上下文压缩，端口 18081
-└── 15-ApplicationRAG # application-layer retrieval + Agent 回答，端口 18081
+├── 15-ApplicationRAG # application-layer retrieval + Agent 回答，端口 18081
+├── 16-SubAgentOrchestration # 主 Agent 委派、子 Agent 与后台任务，端口 18081
+├── 17-PlanMode # 只读规划、PLAN.md 与阶段切换，端口 18081
+└── 18-Skills # workspace Skills、SKILL.md 与按需加载，端口 18081
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -33,7 +36,7 @@ learn-agentscope-demo
 
 ## 配置 API Key
 
-十五个模块统一从环境变量读取 DashScope API Key。启动任一需要真实模型的模块前执行：
+十八个模块统一从环境变量读取 DashScope API Key。启动任一需要真实模型的模块前执行：
 
 ```bash
 export DASHSCOPE_API_KEY="你的 DashScope API Key"
@@ -187,3 +190,30 @@ SSE 事件流测试见 [`04-StreamingEvents/README.md`](04-StreamingEvents/READM
 
 AgentScope Java 2.0.1 的旧 `GenericRAGHook` 已 deprecated/forRemoval，本节按照当前边界实现 application-layer RAG：应用层负责 Query -> Retrieve -> Context Injection，`ReActAgent` 负责基于检索上下文生成答案，并返回 sources，见
 [`15-ApplicationRAG/README.md`](15-ApplicationRAG/README.md)。
+
+## 16-SubAgentOrchestration
+
+```bash
+./mvnw -pl 16-SubAgentOrchestration spring-boot:run
+```
+
+通过 `workspace/subagents/*.md` 声明 `researcher` 与 `reviewer`，学习主 Agent 如何使用 `agent_spawn` 委派任务、同步/后台子任务、`task_id`、ISOLATED/SHARED Workspace 和持久子会话等概念，见
+[`16-SubAgentOrchestration/README.md`](16-SubAgentOrchestration/README.md)。
+
+## 17-PlanMode
+
+```bash
+./mvnw -pl 17-PlanMode spring-boot:run
+```
+
+开启 Harness Plan Mode，学习 `plan_enter / plan_write / plan_exit`、只读规划阶段、`plans/PLAN.md`、HITL 退出，以及通过业务代码按 session 进入/退出计划状态，见
+[`17-PlanMode/README.md`](17-PlanMode/README.md)。
+
+## 18-Skills
+
+```bash
+./mvnw -pl 18-Skills spring-boot:run
+```
+
+通过 `workspace/skills/<name>/SKILL.md` 提供 `java-code-review` 与 `api-design` 两个真实 Skill，学习 available skills、按需加载、references、Skill 与 Tool/SubAgent/Plan 的职责边界以及 Skill Repository 扩展，见
+[`18-Skills/README.md`](18-Skills/README.md)。
