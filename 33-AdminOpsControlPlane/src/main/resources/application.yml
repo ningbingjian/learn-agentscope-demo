@@ -1,0 +1,33 @@
+server:
+  port: 18081
+
+spring:
+  application:
+    name: lesson-33-admin-ops-control-plane
+
+agentscope:
+  admin:
+    enabled: true
+    write-enabled: ${AGENTSCOPE_ADMIN_WRITE_ENABLED:false}
+    write-token: ${AGENTSCOPE_ADMIN_WRITE_TOKEN:}
+    base-path: /v1/admin
+    publish-audit-events: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - agentscope-status
+          - agentscope-agents
+          - agentscope-tools
+          - agentscope-models
+          - agentscope-usage
+          - agentscope-commands
+          - agentscope-permissions
+          - agentscope-subagents
+          - agentscope-doctor
+          - agentscope-drain
+          - agentscope-shutdown
