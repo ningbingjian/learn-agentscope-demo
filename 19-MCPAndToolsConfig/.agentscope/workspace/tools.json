@@ -1,0 +1,13 @@
+{
+  "deny": ["execute"],
+  "mcpServers": {
+    "learning-demo": {
+      "transport": "stdio",
+      "command": "python3",
+      "args": [".agentscope/workspace/mcp-server.py"],
+      "enableTools": ["echo_text", "add_numbers"],
+      "timeout": "PT20S",
+      "initializationTimeout": "PT10S"
+    }
+  }
+}

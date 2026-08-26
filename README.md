@@ -23,7 +23,10 @@ learn-agentscope-demo
 ├── 15-ApplicationRAG # application-layer retrieval + Agent 回答，端口 18081
 ├── 16-SubAgentOrchestration # 主 Agent 委派、子 Agent 与后台任务，端口 18081
 ├── 17-PlanMode # 只读规划、PLAN.md 与阶段切换，端口 18081
-└── 18-Skills # workspace Skills、SKILL.md 与按需加载，端口 18081
+├── 18-Skills # workspace Skills、SKILL.md 与按需加载，端口 18081
+├── 19-MCPAndToolsConfig # MCP stdio 与 tools.json Tool Surface，端口 18081
+├── 20-FilesystemAndSandbox # Local/Remote/Sandbox 与执行隔离，端口 18081
+└── 21-GatewayAndChannel # ChatUiChannel、Gateway、SSE 与 SubAgent 直连，端口 18081
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -36,7 +39,7 @@ learn-agentscope-demo
 
 ## 配置 API Key
 
-十八个模块统一从环境变量读取 DashScope API Key。启动任一需要真实模型的模块前执行：
+二十一个模块统一从环境变量读取 DashScope API Key。启动任一需要真实模型的模块前执行：
 
 ```bash
 export DASHSCOPE_API_KEY="你的 DashScope API Key"
@@ -217,3 +220,30 @@ AgentScope Java 2.0.1 的旧 `GenericRAGHook` 已 deprecated/forRemoval，本节
 
 通过 `workspace/skills/<name>/SKILL.md` 提供 `java-code-review` 与 `api-design` 两个真实 Skill，学习 available skills、按需加载、references、Skill 与 Tool/SubAgent/Plan 的职责边界以及 Skill Repository 扩展，见
 [`18-Skills/README.md`](18-Skills/README.md)。
+
+## 19-MCPAndToolsConfig
+
+```bash
+./mvnw -pl 19-MCPAndToolsConfig spring-boot:run
+```
+
+学习 Harness `tools.json`、MCP stdio、`McpServerConfig`、`enableTools` 与最终 `allow/deny` ToolFilter；默认不启动 MCP 子进程，设置 `MCP_DEMO_ENABLED=true` 后连接仓库内置的最小 Python MCP Server，见
+[`19-MCPAndToolsConfig/README.md`](19-MCPAndToolsConfig/README.md)。
+
+## 20-FilesystemAndSandbox
+
+```bash
+./mvnw -pl 20-FilesystemAndSandbox spring-boot:run
+```
+
+学习 `LocalFilesystemSpec / RemoteFilesystemSpec / SandboxFilesystemSpec`、`LocalFsMode.ROOTED` 和 `IsolationScope`。默认使用本地受限模式，设置 `SANDBOX_DEMO_ENABLED=true` 后切换到 Docker Sandbox，见
+[`20-FilesystemAndSandbox/README.md`](20-FilesystemAndSandbox/README.md)。
+
+## 21-GatewayAndChannel
+
+```bash
+./mvnw -pl 21-GatewayAndChannel spring-boot:run
+```
+
+使用 `ChatUiChannel + Gateway + SendOptions` 将 HTTP 请求映射到稳定用户/session，提供普通与 SSE 接口，并演示 `SubagentExposedEvent` 与通过 `subagentId` 直接继续和暴露子 Agent 对话，见
+[`21-GatewayAndChannel/README.md`](21-GatewayAndChannel/README.md)。

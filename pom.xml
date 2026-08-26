@@ -37,6 +37,9 @@
         <module>16-SubAgentOrchestration</module>
         <module>17-PlanMode</module>
         <module>18-Skills</module>
+        <module>19-MCPAndToolsConfig</module>
+        <module>20-FilesystemAndSandbox</module>
+        <module>21-GatewayAndChannel</module>
     </modules>
 
     <properties>
