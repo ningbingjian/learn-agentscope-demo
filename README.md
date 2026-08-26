@@ -17,7 +17,10 @@ learn-agentscope-demo
 ├── 09-MiddlewareLifecycle # Middleware 五个生命周期入口，端口 18081
 ├── 10-ContextAndStateStore # RuntimeContext / AgentState / StateStore，端口 18081
 ├── 11-AgentObserve # observe() 注入消息但不触发推理，端口 18081
-└── 12-HarnessWorkspace # WorkspaceManager 与 Harness 工作区文件，端口 18081
+├── 12-HarnessWorkspace # WorkspaceManager 与 Harness 工作区文件，端口 18081
+├── 13-HarnessMemory # Harness 两层长期记忆与 MemoryConfig，端口 18081
+├── 14-ContextCompaction # summary + recent tail 上下文压缩，端口 18081
+└── 15-ApplicationRAG # application-layer retrieval + Agent 回答，端口 18081
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -30,7 +33,7 @@ learn-agentscope-demo
 
 ## 配置 API Key
 
-十二个模块统一从环境变量读取 DashScope API Key。启动任一需要真实模型的模块前执行：
+十五个模块统一从环境变量读取 DashScope API Key。启动任一需要真实模型的模块前执行：
 
 ```bash
 export DASHSCOPE_API_KEY="你的 DashScope API Key"
@@ -157,3 +160,30 @@ SSE 事件流测试见 [`04-StreamingEvents/README.md`](04-StreamingEvents/READM
 
 正式学习 Harness Workspace 与 `WorkspaceManager`，直接读取 `AGENTS.md / MEMORY.md / KNOWLEDGE.md`、列出知识文件、写入学习笔记，并区分 Workspace 与 AgentState，见
 [`12-HarnessWorkspace/README.md`](12-HarnessWorkspace/README.md)。
+
+## 13-HarnessMemory
+
+```bash
+./mvnw -pl 13-HarnessMemory spring-boot:run
+```
+
+学习 AgentScope Java 2.0.1 Harness 当前的两层长期记忆：`memory/YYYY-MM-DD.md` 每日流水与 `MEMORY.md` 策划后长期记忆，并通过 `MemoryConfig` 观察 flush、consolidation、retention 等配置。旧 Core `LongTermMemory` API 已 deprecated/forRemoval，本节不继续使用它。见
+[`13-HarnessMemory/README.md`](13-HarnessMemory/README.md)。
+
+## 14-ContextCompaction
+
+```bash
+./mvnw -pl 14-ContextCompaction spring-boot:run
+```
+
+使用 `CompactionConfig` 和 `ConversationCompactor` 学习长会话的 `old prefix -> summary + recent tail` 压缩过程，实验中关闭长期记忆 hooks 以隔离观察 compaction，并用 FakeModel 自动化测试真实压缩结果，见
+[`14-ContextCompaction/README.md`](14-ContextCompaction/README.md)。
+
+## 15-ApplicationRAG
+
+```bash
+./mvnw -pl 15-ApplicationRAG spring-boot:run
+```
+
+AgentScope Java 2.0.1 的旧 `GenericRAGHook` 已 deprecated/forRemoval，本节按照当前边界实现 application-layer RAG：应用层负责 Query -> Retrieve -> Context Injection，`ReActAgent` 负责基于检索上下文生成答案，并返回 sources，见
+[`15-ApplicationRAG/README.md`](15-ApplicationRAG/README.md)。
