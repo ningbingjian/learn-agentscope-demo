@@ -29,7 +29,10 @@ learn-agentscope-demo
 ├── 21-GatewayAndChannel # ChatUiChannel、Gateway、SSE 与 SubAgent 直连，端口 18081
 ├── 22-AgentServiceAndDeployment # Agent Protocol 与服务部署，端口 18081
 ├── 23-DistributedStateAndStorage # DistributedStore 与多副本共享，端口 18081
-└── 24-ObservabilityAndTracing # 日志、Metrics 与 OpenTelemetry Trace，端口 18081
+├── 24-ObservabilityAndTracing # 日志、Metrics 与 OpenTelemetry Trace，端口 18081
+├── 25-ExecutionResilience # Model/Tool 超时、重试与指数退避，端口 18081
+├── 26-GracefulShutdownAndRecovery # Drain、SIGTERM 与状态恢复，端口 18081
+└── 27-KubernetesProductionDeployment # 多副本、Probe、HPA、PDB 与优雅下线，端口 18081/18082
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -42,7 +45,7 @@ learn-agentscope-demo
 
 ## 配置 API Key
 
-二十四个模块统一从环境变量读取 DashScope API Key。启动任一需要真实模型的模块前执行：
+二十七个模块统一从环境变量读取 DashScope API Key。启动任一需要真实模型的模块前执行：
 
 ```bash
 export DASHSCOPE_API_KEY="你的 DashScope API Key"
@@ -277,3 +280,30 @@ AgentScope Java 2.0.1 的旧 `GenericRAGHook` 已 deprecated/forRemoval，本节
 
 学习 Harness 默认 `AgentTraceMiddleware`、自定义聚合 Metrics Middleware，以及 `OtelTracingMiddleware` 的 `invoke_agent / chat / execute_tool` spans。设置 `OTEL_DEMO_ENABLED=true` 可用 LoggingSpanExporter 直接观察标准 OpenTelemetry span，见
 [`24-ObservabilityAndTracing/README.md`](24-ObservabilityAndTracing/README.md)。
+
+## 25-ExecutionResilience
+
+```bash
+./mvnw -pl 25-ExecutionResilience spring-boot:run
+```
+
+使用 `ExecutionConfig` 分别配置 Model 与 Tool 的 timeout、retry、exponential backoff 和 retry filter，并通过 `slow_task` 观察 Tool 超时。重点理解为什么 Model 可重试，而有副作用的 Tool 默认应避免自动 retry，见
+[`25-ExecutionResilience/README.md`](25-ExecutionResilience/README.md)。
+
+## 26-GracefulShutdownAndRecovery
+
+```bash
+./mvnw -pl 26-GracefulShutdownAndRecovery spring-boot:run
+```
+
+学习 `GracefulShutdownManager`、`GracefulShutdownConfig`、`PartialReasoningPolicy`、AgentScope JVM SIGTERM Hook 与 Admin `agentscope-drain` 端点，串起“停止接新请求 → 等待在途请求 → 超时中断/保存 → 下次恢复”的优雅下线链路，见
+[`26-GracefulShutdownAndRecovery/README.md`](26-GracefulShutdownAndRecovery/README.md)。
+
+## 27-KubernetesProductionDeployment
+
+```bash
+./mvnw -pl 27-KubernetesProductionDeployment spring-boot:run
+```
+
+把前面的生产能力组合成 Kubernetes 示例：本地可无 Redis 启动；`distributed` profile 下使用 `RedisDistributedStore` 共享状态和 Workspace，并提供独立 management 端口、startup/liveness/readiness probes、preStop Drain、SIGTERM graceful shutdown、RollingUpdate、HPA、PDB 与 Secret 示例。详细部署过程见
+[`27-KubernetesProductionDeployment/README.md`](27-KubernetesProductionDeployment/README.md)。
