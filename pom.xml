@@ -34,6 +34,9 @@
         <module>13-HarnessMemory</module>
         <module>14-ContextCompaction</module>
         <module>15-ApplicationRAG</module>
+        <module>16-SubAgentOrchestration</module>
+        <module>17-PlanMode</module>
+        <module>18-Skills</module>
     </modules>
 
     <properties>
