@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import reactor.core.publisher.Mono;
@@ -68,10 +69,12 @@ class SkillSelfLearningFlowTest {
                 .build()).block();
 
         assertThat(proposed).isNotNull();
-        assertThat(proposed.getOutput())
-                .filteredOn(TextBlock.class::isInstance)
-                .extracting(block -> ((TextBlock) block).getText())
-                .anyMatch(text -> text.contains("lesson-note"));
+        String proposedText = proposed.getOutput().stream()
+                .filter(TextBlock.class::isInstance)
+                .map(TextBlock.class::cast)
+                .map(TextBlock::getText)
+                .collect(Collectors.joining("\n"));
+        assertThat(proposedText).contains("lesson-note");
         Path draft = tempDir.resolve("skills/_drafts/lesson-note/SKILL.md");
         assertThat(Files.exists(draft)).isTrue();
 
