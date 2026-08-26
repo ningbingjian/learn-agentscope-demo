@@ -2,6 +2,7 @@ package com.example.agentscope.executionresilience;
 
 import io.agentscope.core.ReActAgent;
 import io.agentscope.core.message.ContentBlock;
+import io.agentscope.core.message.UserMessage;
 import io.agentscope.core.model.ChatResponse;
 import io.agentscope.core.model.ExecutionConfig;
 import io.agentscope.core.model.GenerateOptions;
@@ -43,7 +44,7 @@ class ExecutionResilienceTest {
                 .modelExecutionConfig(modelPolicy)
                 .toolExecutionConfig(toolPolicy)
                 .build()) {
-            var reply = agent.call("hello").block();
+            var reply = agent.call(new UserMessage("hello")).block();
 
             assertThat(reply).isNotNull();
             assertThat(reply.getTextContent()).contains("recovered");
