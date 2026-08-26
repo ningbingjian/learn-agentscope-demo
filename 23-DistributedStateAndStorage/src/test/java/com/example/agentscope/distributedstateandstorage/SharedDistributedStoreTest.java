@@ -76,6 +76,10 @@ class SharedDistributedStoreTest {
                 .distributedStore(store)
                 .filesystem(new RemoteFilesystemSpec()
                         .isolationScope(IsolationScope.USER))
+                .disableMemoryHooks()
+                .disableMemoryTools()
+                .disableCompaction()
+                .disableSubagents()
                 .build();
     }
 
