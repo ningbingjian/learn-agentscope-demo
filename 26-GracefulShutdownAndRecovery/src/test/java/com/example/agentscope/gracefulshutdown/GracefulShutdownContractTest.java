@@ -2,6 +2,7 @@ package com.example.agentscope.gracefulshutdown;
 
 import io.agentscope.core.ReActAgent;
 import io.agentscope.core.message.ContentBlock;
+import io.agentscope.core.message.UserMessage;
 import io.agentscope.core.model.ChatResponse;
 import io.agentscope.core.model.GenerateOptions;
 import io.agentscope.core.model.Model;
@@ -46,14 +47,14 @@ class GracefulShutdownContractTest {
                 .sysPrompt("test")
                 .model(new ImmediateModel())
                 .build()) {
-            assertThat(agent.call("before drain").block()).isNotNull();
+            assertThat(agent.call(new UserMessage("before drain")).block()).isNotNull();
             assertThat(manager.isAcceptingRequests()).isTrue();
 
             assertThat(manager.performGracefulShutdown()).isTrue();
             assertThat(manager.isAcceptingRequests()).isFalse();
 
-            assertThatThrownBy(() -> agent.call("after drain").block())
-                    .hasRootCauseInstanceOf(AgentShuttingDownException.class);
+            assertThatThrownBy(() -> agent.call(new UserMessage("after drain")).block())
+                    .isInstanceOf(AgentShuttingDownException.class);
         }
     }
 
