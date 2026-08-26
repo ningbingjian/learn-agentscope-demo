@@ -28,6 +28,9 @@
         <module>07-StructuredOutput</module>
         <module>08-PermissionHITL</module>
         <module>09-MiddlewareLifecycle</module>
+        <module>10-ContextAndStateStore</module>
+        <module>11-AgentObserve</module>
+        <module>12-HarnessWorkspace</module>
     </modules>
 
     <properties>
