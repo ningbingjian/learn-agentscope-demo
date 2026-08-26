@@ -31,7 +31,7 @@ class SimpleKnowledgeRetrieverTest {
 
     @Test
     void respectsResultLimit() {
-        assertThat(retriever.retrieve("AgentScope context memory tool permission", 2))
-                .hasSizeLessThanOrEqualTo(2);
+        int resultSize = retriever.retrieve("AgentScope context memory tool permission", 2).size();
+        assertThat(resultSize).isLessThanOrEqualTo(2);
     }
 }
