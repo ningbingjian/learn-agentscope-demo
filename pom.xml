@@ -40,11 +40,21 @@
         <module>19-MCPAndToolsConfig</module>
         <module>20-FilesystemAndSandbox</module>
         <module>21-GatewayAndChannel</module>
+        <module>22-AgentServiceAndDeployment</module>
+        <module>23-DistributedStateAndStorage</module>
+        <module>24-ObservabilityAndTracing</module>
+        <module>25-ExecutionResilience</module>
+        <module>26-GracefulShutdownAndRecovery</module>
+        <module>27-KubernetesProductionDeployment</module>
+        <module>28-MessageAndEventModel</module>
+        <module>29-ModelLayerAndRegistry</module>
+        <module>30-AdvancedTooling</module>
     </modules>
 
     <properties>
         <java.version>17</java.version>
         <agentscope.version>2.0.1</agentscope.version>
+        <opentelemetry.version>1.61.0</opentelemetry.version>
     </properties>
 
     <dependencyManagement>
@@ -63,6 +73,31 @@
                 <groupId>io.agentscope</groupId>
                 <artifactId>agentscope-dashscope-spring-boot-starter</artifactId>
                 <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-agent-protocol</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-admin-spring-boot-starter</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-redis</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-sdk</artifactId>
+                <version>${opentelemetry.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-exporter-logging</artifactId>
+                <version>${opentelemetry.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

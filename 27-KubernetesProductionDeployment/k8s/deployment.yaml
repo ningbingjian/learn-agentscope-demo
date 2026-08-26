@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agentscope-demo
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: agentscope-demo
+  template:
+    metadata:
+      labels:
+        app: agentscope-demo
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: agent
+          image: your-registry/learn-agentscope-demo:27
+          ports:
+            - name: http
+              containerPort: 18081
+            - name: management
+              containerPort: 18082
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: distributed
+            - name: DASHSCOPE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: agentscope-demo-secret
+                  key: dashscope-api-key
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: agentscope-demo-secret
+                  key: redis-url
+            - name: AGENTSCOPE_ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: agentscope-demo-secret
+                  key: admin-token
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: management
+            periodSeconds: 2
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: management
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: management
+            periodSeconds: 5
+            failureThreshold: 2
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - >-
+                    curl -fsS -X POST
+                    "http://127.0.0.1:18082/actuator/agentscope-drain?confirm=yes&token=${AGENTSCOPE_ADMIN_TOKEN}"
+                    || true; sleep 5
+          resources:
+            requests:
+              cpu: 500m
+              memory: 768Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi

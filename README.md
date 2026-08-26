@@ -26,7 +26,16 @@ learn-agentscope-demo
 ├── 18-Skills # workspace Skills、SKILL.md 与按需加载，端口 18081
 ├── 19-MCPAndToolsConfig # MCP stdio 与 tools.json Tool Surface，端口 18081
 ├── 20-FilesystemAndSandbox # Local/Remote/Sandbox 与执行隔离，端口 18081
-└── 21-GatewayAndChannel # ChatUiChannel、Gateway、SSE 与 SubAgent 直连，端口 18081
+├── 21-GatewayAndChannel # ChatUiChannel、Gateway、SSE 与 SubAgent 直连，端口 18081
+├── 22-AgentServiceAndDeployment # Agent Protocol 与服务部署，端口 18081
+├── 23-DistributedStateAndStorage # DistributedStore 与多副本共享，端口 18081
+├── 24-ObservabilityAndTracing # 日志、Metrics 与 OpenTelemetry Trace，端口 18081
+├── 25-ExecutionResilience # Model/Tool 超时、重试与指数退避，端口 18081
+├── 26-GracefulShutdownAndRecovery # Drain、SIGTERM 与状态恢复，端口 18081
+├── 27-KubernetesProductionDeployment # 多副本、Probe、HPA、PDB 与优雅下线，端口 18081/18082
+├── 28-MessageAndEventModel # Msg/ContentBlock 与 AgentEvent 生命周期，端口 18081
+├── 29-ModelLayerAndRegistry # ModelRegistry、ModelCreationContext 与 Provider SPI，端口 18081
+└── 30-AdvancedTooling # ToolGroup、Context 注入与 ToolEmitter，端口 18081
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -35,15 +44,17 @@ learn-agentscope-demo
 
 - JDK 17+（本机已有 JDK 21，推荐直接使用）
 - Maven 3.9+（项目使用 Maven Wrapper，无需修改全局 Maven）
-- DashScope API Key
+- DashScope API Key（仅需要真实 DashScope 模型的模块）
 
 ## 配置 API Key
 
-二十一个模块统一从环境变量读取 DashScope API Key。启动任一需要真实模型的模块前执行：
+需要真实 DashScope 模型的模块统一从环境变量读取 API Key：
 
 ```bash
 export DASHSCOPE_API_KEY="你的 DashScope API Key"
 ```
+
+`29-ModelLayerAndRegistry` 使用仓库内自带的 `LessonEchoModel + ModelProvider SPI`，不需要任何外部模型 API Key。
 
 环境变量只对当前终端会话生效，不会写入代码或提交到 GitHub。
 
@@ -247,3 +258,84 @@ AgentScope Java 2.0.1 的旧 `GenericRAGHook` 已 deprecated/forRemoval，本节
 
 使用 `ChatUiChannel + Gateway + SendOptions` 将 HTTP 请求映射到稳定用户/session，提供普通与 SSE 接口，并演示 `SubagentExposedEvent` 与通过 `subagentId` 直接继续和暴露子 Agent 对话，见
 [`21-GatewayAndChannel/README.md`](21-GatewayAndChannel/README.md)。
+
+## 22-AgentServiceAndDeployment
+
+```bash
+./mvnw -pl 22-AgentServiceAndDeployment spring-boot:run
+```
+
+使用 `agentscope-extensions-agent-protocol` 将 `HarnessAgent` 自动暴露为 `/tasks` 标准任务服务，学习提交、状态、wait、cancel、SSE events、HITL resume、Remote SubAgent 托管以及 Docker 镜像部署，见
+[`22-AgentServiceAndDeployment/README.md`](22-AgentServiceAndDeployment/README.md)。
+
+## 23-DistributedStateAndStorage
+
+```bash
+./mvnw -pl 23-DistributedStateAndStorage spring-boot:run
+```
+
+学习 `DistributedStore` 如何统一 `AgentStateStore / BaseStore / SandboxSnapshotSpec / SandboxExecutionGuard`，并用两个不同 HarnessAgent 模拟两个 Pod，共享同一个 state/workspace 后端，见
+[`23-DistributedStateAndStorage/README.md`](23-DistributedStateAndStorage/README.md)。
+
+## 24-ObservabilityAndTracing
+
+```bash
+./mvnw -pl 24-ObservabilityAndTracing spring-boot:run
+```
+
+学习 Harness 默认 `AgentTraceMiddleware`、自定义聚合 Metrics Middleware，以及 `OtelTracingMiddleware` 的 `invoke_agent / chat / execute_tool` spans。设置 `OTEL_DEMO_ENABLED=true` 可用 LoggingSpanExporter 直接观察标准 OpenTelemetry span，见
+[`24-ObservabilityAndTracing/README.md`](24-ObservabilityAndTracing/README.md)。
+
+## 25-ExecutionResilience
+
+```bash
+./mvnw -pl 25-ExecutionResilience spring-boot:run
+```
+
+使用 `ExecutionConfig` 分别配置 Model 与 Tool 的 timeout、retry、exponential backoff 和 retry filter，并通过 `slow_task` 观察 Tool 超时。重点理解为什么 Model 可重试，而有副作用的 Tool 默认应避免自动 retry，见
+[`25-ExecutionResilience/README.md`](25-ExecutionResilience/README.md)。
+
+## 26-GracefulShutdownAndRecovery
+
+```bash
+./mvnw -pl 26-GracefulShutdownAndRecovery spring-boot:run
+```
+
+学习 `GracefulShutdownManager`、`GracefulShutdownConfig`、`PartialReasoningPolicy`、AgentScope JVM SIGTERM Hook 与 Admin `agentscope-drain` 端点，串起“停止接新请求 → 等待在途请求 → 超时中断/保存 → 下次恢复”的优雅下线链路，见
+[`26-GracefulShutdownAndRecovery/README.md`](26-GracefulShutdownAndRecovery/README.md)。
+
+## 27-KubernetesProductionDeployment
+
+```bash
+./mvnw -pl 27-KubernetesProductionDeployment spring-boot:run
+```
+
+把前面的生产能力组合成 Kubernetes 示例：本地可无 Redis 启动；`distributed` profile 下使用 `RedisDistributedStore` 共享状态和 Workspace，并提供独立 management 端口、startup/liveness/readiness probes、preStop Drain、SIGTERM graceful shutdown、RollingUpdate、HPA、PDB 与 Secret 示例。详细部署过程见
+[`27-KubernetesProductionDeployment/README.md`](27-KubernetesProductionDeployment/README.md)。
+
+## 28-MessageAndEventModel
+
+```bash
+./mvnw -pl 28-MessageAndEventModel spring-boot:run
+```
+
+系统学习 `Msg`、`ContentBlock`、`ToolUseBlock / ToolResultBlock` 与 `AgentEvent` 的 start/delta/end 生命周期，并通过普通接口与 SSE 对照“最终消息”和“增量事件”。见
+[`28-MessageAndEventModel/README.md`](28-MessageAndEventModel/README.md)。
+
+## 29-ModelLayerAndRegistry
+
+```bash
+./mvnw -pl 29-ModelLayerAndRegistry spring-boot:run
+```
+
+使用仓库内置 `LessonEchoModel` 和真正的 Java `ModelProvider SPI` 学习 `ModelRegistry` 解析顺序、`ModelCreationContext`、多租户模型配置与 `CachePolicy`。本模块无需 API Key。见
+[`29-ModelLayerAndRegistry/README.md`](29-ModelLayerAndRegistry/README.md)。
+
+## 30-AdvancedTooling
+
+```bash
+./mvnw -pl 30-AdvancedTooling spring-boot:run
+```
+
+学习 `ToolGroup / ToolGroupScope`、2.0.1 的 `reset_equipped_tools`、RuntimeContext 与自定义 POJO 自动注入，以及 `ToolEmitter` 的长任务进度流。见
+[`30-AdvancedTooling/README.md`](30-AdvancedTooling/README.md)。

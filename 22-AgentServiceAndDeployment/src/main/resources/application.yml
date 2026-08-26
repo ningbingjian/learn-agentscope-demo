@@ -1,0 +1,17 @@
+server:
+  port: 18081
+
+spring:
+  application:
+    name: 22-AgentServiceAndDeployment
+
+agentscope:
+  dashscope:
+    api-key: ${DASHSCOPE_API_KEY:}
+    model-name: qwen-plus
+  agent-protocol:
+    enabled: true
+    streaming-enabled: true
+    hitl-enabled: true
+    sse-replay-buffer-size: 256
+    sse-timeout-ms: 10800000
