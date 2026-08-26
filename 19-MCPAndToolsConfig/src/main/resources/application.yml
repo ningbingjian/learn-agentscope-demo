@@ -1,0 +1,15 @@
+server:
+  port: 18081
+
+spring:
+  application:
+    name: 19-MCPAndToolsConfig
+
+agentscope:
+  dashscope:
+    api-key: ${DASHSCOPE_API_KEY:}
+    model-name: qwen-plus
+
+demo:
+  mcp:
+    enabled: ${MCP_DEMO_ENABLED:false}
