@@ -31,6 +31,9 @@
         <module>10-ContextAndStateStore</module>
         <module>11-AgentObserve</module>
         <module>12-HarnessWorkspace</module>
+        <module>13-HarnessMemory</module>
+        <module>14-ContextCompaction</module>
+        <module>15-ApplicationRAG</module>
     </modules>
 
     <properties>
