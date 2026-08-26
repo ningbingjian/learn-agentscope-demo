@@ -32,7 +32,10 @@ learn-agentscope-demo
 ├── 24-ObservabilityAndTracing # 日志、Metrics 与 OpenTelemetry Trace，端口 18081
 ├── 25-ExecutionResilience # Model/Tool 超时、重试与指数退避，端口 18081
 ├── 26-GracefulShutdownAndRecovery # Drain、SIGTERM 与状态恢复，端口 18081
-└── 27-KubernetesProductionDeployment # 多副本、Probe、HPA、PDB 与优雅下线，端口 18081/18082
+├── 27-KubernetesProductionDeployment # 多副本、Probe、HPA、PDB 与优雅下线，端口 18081/18082
+├── 28-MessageAndEventModel # Msg/ContentBlock 与 AgentEvent 生命周期，端口 18081
+├── 29-ModelLayerAndRegistry # ModelRegistry、ModelCreationContext 与 Provider SPI，端口 18081
+└── 30-AdvancedTooling # ToolGroup、Context 注入与 ToolEmitter，端口 18081
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -41,15 +44,17 @@ learn-agentscope-demo
 
 - JDK 17+（本机已有 JDK 21，推荐直接使用）
 - Maven 3.9+（项目使用 Maven Wrapper，无需修改全局 Maven）
-- DashScope API Key
+- DashScope API Key（仅需要真实 DashScope 模型的模块）
 
 ## 配置 API Key
 
-二十七个模块统一从环境变量读取 DashScope API Key。启动任一需要真实模型的模块前执行：
+需要真实 DashScope 模型的模块统一从环境变量读取 API Key：
 
 ```bash
 export DASHSCOPE_API_KEY="你的 DashScope API Key"
 ```
+
+`29-ModelLayerAndRegistry` 使用仓库内自带的 `LessonEchoModel + ModelProvider SPI`，不需要任何外部模型 API Key。
 
 环境变量只对当前终端会话生效，不会写入代码或提交到 GitHub。
 
@@ -307,3 +312,30 @@ AgentScope Java 2.0.1 的旧 `GenericRAGHook` 已 deprecated/forRemoval，本节
 
 把前面的生产能力组合成 Kubernetes 示例：本地可无 Redis 启动；`distributed` profile 下使用 `RedisDistributedStore` 共享状态和 Workspace，并提供独立 management 端口、startup/liveness/readiness probes、preStop Drain、SIGTERM graceful shutdown、RollingUpdate、HPA、PDB 与 Secret 示例。详细部署过程见
 [`27-KubernetesProductionDeployment/README.md`](27-KubernetesProductionDeployment/README.md)。
+
+## 28-MessageAndEventModel
+
+```bash
+./mvnw -pl 28-MessageAndEventModel spring-boot:run
+```
+
+系统学习 `Msg`、`ContentBlock`、`ToolUseBlock / ToolResultBlock` 与 `AgentEvent` 的 start/delta/end 生命周期，并通过普通接口与 SSE 对照“最终消息”和“增量事件”。见
+[`28-MessageAndEventModel/README.md`](28-MessageAndEventModel/README.md)。
+
+## 29-ModelLayerAndRegistry
+
+```bash
+./mvnw -pl 29-ModelLayerAndRegistry spring-boot:run
+```
+
+使用仓库内置 `LessonEchoModel` 和真正的 Java `ModelProvider SPI` 学习 `ModelRegistry` 解析顺序、`ModelCreationContext`、多租户模型配置与 `CachePolicy`。本模块无需 API Key。见
+[`29-ModelLayerAndRegistry/README.md`](29-ModelLayerAndRegistry/README.md)。
+
+## 30-AdvancedTooling
+
+```bash
+./mvnw -pl 30-AdvancedTooling spring-boot:run
+```
+
+学习 `ToolGroup / ToolGroupScope`、2.0.1 的 `reset_equipped_tools`、RuntimeContext 与自定义 POJO 自动注入，以及 `ToolEmitter` 的长任务进度流。见
+[`30-AdvancedTooling/README.md`](30-AdvancedTooling/README.md)。
