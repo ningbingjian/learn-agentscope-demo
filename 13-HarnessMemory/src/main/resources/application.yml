@@ -1,0 +1,14 @@
+server:
+  port: 18081
+
+spring:
+  application:
+    name: 13-HarnessMemory
+
+agentscope:
+  model:
+    provider: dashscope
+  dashscope:
+    api-key: ${DASHSCOPE_API_KEY}
+    model-name: qwen-plus
+    stream: true
