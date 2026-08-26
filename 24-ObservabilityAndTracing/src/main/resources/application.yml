@@ -1,0 +1,19 @@
+server:
+  port: 18081
+
+spring:
+  application:
+    name: 24-ObservabilityAndTracing
+
+agentscope:
+  dashscope:
+    api-key: ${DASHSCOPE_API_KEY:}
+    model-name: qwen-plus
+
+demo:
+  observability:
+    otel-enabled: ${OTEL_DEMO_ENABLED:false}
+
+logging:
+  level:
+    io.agentscope.harness.agent.middleware.AgentTraceMiddleware: INFO
