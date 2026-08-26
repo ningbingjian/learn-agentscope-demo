@@ -26,7 +26,10 @@ learn-agentscope-demo
 ├── 18-Skills # workspace Skills、SKILL.md 与按需加载，端口 18081
 ├── 19-MCPAndToolsConfig # MCP stdio 与 tools.json Tool Surface，端口 18081
 ├── 20-FilesystemAndSandbox # Local/Remote/Sandbox 与执行隔离，端口 18081
-└── 21-GatewayAndChannel # ChatUiChannel、Gateway、SSE 与 SubAgent 直连，端口 18081
+├── 21-GatewayAndChannel # ChatUiChannel、Gateway、SSE 与 SubAgent 直连，端口 18081
+├── 22-AgentServiceAndDeployment # Agent Protocol 与服务部署，端口 18081
+├── 23-DistributedStateAndStorage # DistributedStore 与多副本共享，端口 18081
+└── 24-ObservabilityAndTracing # 日志、Metrics 与 OpenTelemetry Trace，端口 18081
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -39,7 +42,7 @@ learn-agentscope-demo
 
 ## 配置 API Key
 
-二十一个模块统一从环境变量读取 DashScope API Key。启动任一需要真实模型的模块前执行：
+二十四个模块统一从环境变量读取 DashScope API Key。启动任一需要真实模型的模块前执行：
 
 ```bash
 export DASHSCOPE_API_KEY="你的 DashScope API Key"
@@ -247,3 +250,30 @@ AgentScope Java 2.0.1 的旧 `GenericRAGHook` 已 deprecated/forRemoval，本节
 
 使用 `ChatUiChannel + Gateway + SendOptions` 将 HTTP 请求映射到稳定用户/session，提供普通与 SSE 接口，并演示 `SubagentExposedEvent` 与通过 `subagentId` 直接继续和暴露子 Agent 对话，见
 [`21-GatewayAndChannel/README.md`](21-GatewayAndChannel/README.md)。
+
+## 22-AgentServiceAndDeployment
+
+```bash
+./mvnw -pl 22-AgentServiceAndDeployment spring-boot:run
+```
+
+使用 `agentscope-extensions-agent-protocol` 将 `HarnessAgent` 自动暴露为 `/tasks` 标准任务服务，学习提交、状态、wait、cancel、SSE events、HITL resume、Remote SubAgent 托管以及 Docker 镜像部署，见
+[`22-AgentServiceAndDeployment/README.md`](22-AgentServiceAndDeployment/README.md)。
+
+## 23-DistributedStateAndStorage
+
+```bash
+./mvnw -pl 23-DistributedStateAndStorage spring-boot:run
+```
+
+学习 `DistributedStore` 如何统一 `AgentStateStore / BaseStore / SandboxSnapshotSpec / SandboxExecutionGuard`，并用两个不同 HarnessAgent 模拟两个 Pod，共享同一个 state/workspace 后端，见
+[`23-DistributedStateAndStorage/README.md`](23-DistributedStateAndStorage/README.md)。
+
+## 24-ObservabilityAndTracing
+
+```bash
+./mvnw -pl 24-ObservabilityAndTracing spring-boot:run
+```
+
+学习 Harness 默认 `AgentTraceMiddleware`、自定义聚合 Metrics Middleware，以及 `OtelTracingMiddleware` 的 `invoke_agent / chat / execute_tool` spans。设置 `OTEL_DEMO_ENABLED=true` 可用 LoggingSpanExporter 直接观察标准 OpenTelemetry span，见
+[`24-ObservabilityAndTracing/README.md`](24-ObservabilityAndTracing/README.md)。
