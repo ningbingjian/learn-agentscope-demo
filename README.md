@@ -35,7 +35,10 @@ learn-agentscope-demo
 ├── 27-KubernetesProductionDeployment # 多副本、Probe、HPA、PDB 与优雅下线，端口 18081/18082
 ├── 28-MessageAndEventModel # Msg/ContentBlock 与 AgentEvent 生命周期，端口 18081
 ├── 29-ModelLayerAndRegistry # ModelRegistry、ModelCreationContext 与 Provider SPI，端口 18081
-└── 30-AdvancedTooling # ToolGroup、Context 注入与 ToolEmitter，端口 18081
+├── 30-AdvancedTooling # ToolGroup、Context 注入与 ToolEmitter，端口 18081
+├── 31-ExternalToolAndHITL # 外部执行 Tool 的暂停、回填与恢复，端口 18081
+├── 32-SkillMarketplaceAndSelfLearning # Skill 市场、自学习、审核与 Curator，端口 18081
+└── 33-AdminOpsControlPlane # Admin Starter、Actuator 与运维控制面，端口 18081
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -54,7 +57,7 @@ learn-agentscope-demo
 export DASHSCOPE_API_KEY="你的 DashScope API Key"
 ```
 
-`29-ModelLayerAndRegistry` 使用仓库内自带的 `LessonEchoModel + ModelProvider SPI`，不需要任何外部模型 API Key。
+`29-ModelLayerAndRegistry`、`31-ExternalToolAndHITL`、`32-SkillMarketplaceAndSelfLearning`、`33-AdminOpsControlPlane` 使用仓库内自带的 deterministic Model 或直接测试框架能力，不需要外部模型 API Key。
 
 环境变量只对当前终端会话生效，不会写入代码或提交到 GitHub。
 
@@ -339,3 +342,30 @@ AgentScope Java 2.0.1 的旧 `GenericRAGHook` 已 deprecated/forRemoval，本节
 
 学习 `ToolGroup / ToolGroupScope`、2.0.1 的 `reset_equipped_tools`、RuntimeContext 与自定义 POJO 自动注入，以及 `ToolEmitter` 的长任务进度流。见
 [`30-AdvancedTooling/README.md`](30-AdvancedTooling/README.md)。
+
+## 31-ExternalToolAndHITL
+
+```bash
+./mvnw -pl 31-ExternalToolAndHITL spring-boot:run
+```
+
+学习 `@Tool(externalTool = true)` 的暂停语义，区分 Permission ASK 与外部执行，验证 `TOOL_SUSPENDED`、同一 `toolCallId` 的 `ToolResultBlock` 回填以及同一 session 恢复。模块使用 deterministic Model，无需 API Key。见
+[`31-ExternalToolAndHITL/README.md`](31-ExternalToolAndHITL/README.md)。
+
+## 32-SkillMarketplaceAndSelfLearning
+
+```bash
+./mvnw -pl 32-SkillMarketplaceAndSelfLearning spring-boot:run
+```
+
+从“使用 Skill”继续推进到 Skill 治理：直接调用 Harness 真正的 `propose_skill` 生成草稿，通过 `SkillPromotionGate + promoteSkill()` 审核晋升，并学习 Marketplace、多层覆盖、Usage/Audit 和 `SkillCurator` 自学习治理闭环。无需外部模型 API Key。见
+[`32-SkillMarketplaceAndSelfLearning/README.md`](32-SkillMarketplaceAndSelfLearning/README.md)。
+
+## 33-AdminOpsControlPlane
+
+```bash
+./mvnw -pl 33-AdminOpsControlPlane spring-boot:run
+```
+
+学习 `agentscope-admin-spring-boot-starter` 的完整运维控制面：`status / agents / tools / models / usage / commands / permissions / subagents / doctor` Actuator endpoints、`/v1/admin` Session Data Plane，以及 `write-enabled + Admin Token` 写操作保护。模块默认只开启读控制面，并使用本地 deterministic Model。见
+[`33-AdminOpsControlPlane/README.md`](33-AdminOpsControlPlane/README.md)。
