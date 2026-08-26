@@ -10,20 +10,28 @@ import io.agentscope.core.a2a.agent.A2aAgent;
 import io.agentscope.core.a2a.server.AgentScopeA2aServer;
 import io.agentscope.spring.boot.a2a.controller.A2aJsonRpcController;
 import io.agentscope.spring.boot.a2a.controller.AgentCardController;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = A2aProtocolApplication.class)
-@AutoConfigureMockMvc
 class A2aProtocolContractTest {
 
     @Autowired AgentScopeA2aServer server;
     @Autowired AgentCardController agentCardController;
     @Autowired A2aJsonRpcController jsonRpcController;
-    @Autowired MockMvc mockMvc;
+    @Autowired WebApplicationContext webApplicationContext;
+
+    MockMvc mockMvc;
+
+    @BeforeEach
+    void setUpMockMvc() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+    }
 
     @Test
     void starterCreatesServerAndA2aControllers() throws Exception {
