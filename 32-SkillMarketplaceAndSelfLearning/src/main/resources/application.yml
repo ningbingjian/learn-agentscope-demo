@@ -1,0 +1,9 @@
+server:
+  port: 18081
+
+spring:
+  application:
+    name: lesson-32-skill-marketplace-self-learning
+
+lesson:
+  workspace: .agentscope/workspace
