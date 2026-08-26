@@ -221,12 +221,13 @@ ServerSentEvent<Map<String,Object>>
 ```yaml
 ---
 description: 可直接暴露给用户的技术调研专家
-auto: ...
+steps: 6
+mode: subagent
 expose_to_user: true
 ---
 ```
 
-实际文件没有 `auto` 字段，这里只强调核心属性：
+核心属性是：
 
 ```yaml
 expose_to_user: true
