@@ -41,7 +41,10 @@ learn-agentscope-demo
 ├── 33-AdminOpsControlPlane # Admin Starter、Actuator 与运维控制面，端口 18081
 ├── 34-AGUIProtocol # AgentEvent 到 AG-UI 标准前端事件协议，端口 18081
 ├── 35-A2AProtocol # A2A Server、AgentCard、JSON-RPC 与 A2aAgent Client，端口 18081
-└── 36-ChatCompletionsCompatibility # OpenAI Chat Completions 兼容接口，端口 18081
+├── 36-ChatCompletionsCompatibility # OpenAI Chat Completions 兼容接口，端口 18081
+├── 37-MultiModelProviders # 多模型 Provider SPI 与 ModelRegistry 路由，端口 18081
+├── 38-DistributedBackends # Redis/MySQL/OSS、JDBC CAS 与混合 DistributedStore，端口 18081
+└── 39-SandboxProviders # Docker/K8s/E2B/Daytona/AgentRun Sandbox Provider，端口 18081
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -60,7 +63,7 @@ learn-agentscope-demo
 export DASHSCOPE_API_KEY="你的 DashScope API Key"
 ```
 
-`29-ModelLayerAndRegistry`、`31-ExternalToolAndHITL`、`32-SkillMarketplaceAndSelfLearning`、`33-AdminOpsControlPlane`、`34-AGUIProtocol`、`35-A2AProtocol`、`36-ChatCompletionsCompatibility` 使用仓库内自带的 deterministic Model 或直接测试框架能力，不需要外部模型 API Key。
+`29-ModelLayerAndRegistry`、`31-ExternalToolAndHITL`、`32-SkillMarketplaceAndSelfLearning`、`33-AdminOpsControlPlane`、`34-AGUIProtocol`、`35-A2AProtocol`、`36-ChatCompletionsCompatibility`、`37-MultiModelProviders`、`38-DistributedBackends`、`39-SandboxProviders` 的核心实验均不需要外部模型 API Key。第 37 课只做 Provider SPI/路由检查，第 38 课默认使用 H2，第 39 课默认只构造 Sandbox Spec，不创建远端沙箱。
 
 环境变量只对当前终端会话生效，不会写入代码或提交到 GitHub。
 
@@ -399,3 +402,30 @@ AgentScope Java 2.0.1 的旧 `GenericRAGHook` 已 deprecated/forRemoval，本节
 
 学习 `agentscope-chat-completions-web-starter` 将 ReActAgent 暴露为 OpenAI 风格 `/v1/chat/completions`，重点理解其 100% stateless、客户端持有完整 history、每请求 fresh prototype Agent，以及非流式 JSON / SSE stream / OpenAI Tool Schema 兼容。模块使用 deterministic Model，无需 API Key。见
 [`36-ChatCompletionsCompatibility/README.md`](36-ChatCompletionsCompatibility/README.md)。
+
+## 37-MultiModelProviders
+
+```bash
+./mvnw -pl 37-MultiModelProviders spring-boot:run
+```
+
+同时引入 AgentScope Java 2.0.1 的 OpenAI、DashScope、Gemini、Anthropic、Ollama 模型扩展，通过真实 `ServiceLoader<ModelProvider>` 与 `ModelRegistry.canResolve()` 观察 OpenAI / DeepSeek / Kimi / GLM / MiniMax / Qwen / Gemini / Claude / Ollama 的统一 Provider 路由。核心实验不创建模型、不访问外网、不需要 API Key。见
+[`37-MultiModelProviders/README.md`](37-MultiModelProviders/README.md)。
+
+## 38-DistributedBackends
+
+```bash
+./mvnw -pl 38-DistributedBackends spring-boot:run
+```
+
+深化 `DistributedStore`：对比 Redis / MySQL-JDBC / OSS 的 AgentStateStore、BaseStore、Snapshot、ExecutionGuard 能力，使用 H2 MySQL compatibility mode 真跑 `JdbcStore` 与 `putIfVersion` CAS，并演示 `DistributedStore.builder()` 混合不同组件。默认无需 Redis/MySQL/OSS 服务。见
+[`38-DistributedBackends/README.md`](38-DistributedBackends/README.md)。
+
+## 39-SandboxProviders
+
+```bash
+./mvnw -pl 39-SandboxProviders spring-boot:run
+```
+
+学习 Docker、Kubernetes agent-sandbox、E2B、Daytona、AgentRun 五种 `SandboxFilesystemSpec` Provider，理解它们如何保持同一套 Harness 文件/执行语义，并区分“Agent 服务部署到 K8s”和“Agent 在 K8s Sandbox 中执行代码”。默认只构造真实官方 Spec，不创建远端 Sandbox，因此无需云凭证。见
+[`39-SandboxProviders/README.md`](39-SandboxProviders/README.md)。
