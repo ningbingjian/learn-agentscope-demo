@@ -27,12 +27,10 @@ class EnterpriseInfrastructureContractTest {
     @Test
     void scheduleConfigSupportsFixedRateAndCron() {
         ScheduleConfig fixedRate = ScheduleConfig.builder()
-                .scheduleMode(ScheduleMode.FIXED_RATE)
                 .fixedRate(5_000L)
                 .build();
         ScheduleConfig cron = ScheduleConfig.builder()
-                .scheduleMode(ScheduleMode.CRON)
-                .cronExpression("0 0 8 * * ?")
+                .cron("0 0 8 * * ?")
                 .build();
 
         assertThat(fixedRate.getScheduleMode()).isEqualTo(ScheduleMode.FIXED_RATE);
