@@ -87,29 +87,45 @@ agentscope-extensions-scheduler-common
 
 调度策略不是写死在 Agent 里的。
 
+AgentScope Java 2.0.1 的 Builder 是**按策略选择方法**，不是手工调用 `scheduleMode(...)`。调用 `fixedRate / fixedDelay / cron` 时，Builder 会自动设置对应的 `ScheduleMode`。
+
 例如固定频率：
 
 ```java
 ScheduleConfig fixed = ScheduleConfig.builder()
-    .scheduleMode(ScheduleMode.FIXED_RATE)
     .fixedRate(5_000L)
     .initialDelay(1_000L)
     .build();
+```
+
+构建后：
+
+```text
+getScheduleMode() = FIXED_RATE
+getFixedRate() = 5000
 ```
 
 CRON：
 
 ```java
 ScheduleConfig cron = ScheduleConfig.builder()
-    .scheduleMode(ScheduleMode.CRON)
-    .cronExpression("0 0 8 * * ?")
+    .cron("0 0 8 * * ?")
     .build();
+```
+
+构建后：
+
+```text
+getScheduleMode() = CRON
+getCronExpression() = 0 0 8 * * ?
 ```
 
 还支持：
 
-```text
-FIXED_DELAY
+```java
+ScheduleConfig.builder()
+    .fixedDelay(5_000L)
+    .build();
 ```
 
 三者区别：
@@ -413,8 +429,8 @@ Agent 应用不要再复制一套互相不一致的网关策略。
 
 ```text
 官方类在 classpath
-ScheduleMode/FIXED_RATE
-ScheduleMode/CRON
+fixedRate() → FIXED_RATE
+cron() → CRON
 builder/getter 契约
 ```
 
