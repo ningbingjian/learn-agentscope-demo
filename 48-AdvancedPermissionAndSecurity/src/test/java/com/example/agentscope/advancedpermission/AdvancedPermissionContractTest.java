@@ -20,6 +20,8 @@ class AdvancedPermissionContractTest {
         assertThat(service.matrix())
                 .containsEntry("explore.readOnly", "ALLOW")
                 .containsEntry("explore.mutation", "DENY")
+                .containsEntry("acceptEdits.readOnly", "ALLOW")
+                .containsEntry("acceptEdits.mutation", "ASK")
                 .containsEntry("default.mutation", "ASK")
                 .containsEntry("dontAsk.mutation", "DENY")
                 .containsEntry("bypass.mutation", "ALLOW")
