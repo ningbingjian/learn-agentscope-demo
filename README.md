@@ -44,7 +44,10 @@ learn-agentscope-demo
 ├── 36-ChatCompletionsCompatibility # OpenAI Chat Completions 兼容接口，端口 18081
 ├── 37-MultiModelProviders # 多模型 Provider SPI 与 ModelRegistry 路由，端口 18081
 ├── 38-DistributedBackends # Redis/MySQL/OSS、JDBC CAS 与混合 DistributedStore，端口 18081
-└── 39-SandboxProviders # Docker/K8s/E2B/Daytona/AgentRun Sandbox Provider，端口 18081
+├── 39-SandboxProviders # Docker/K8s/E2B/Daytona/AgentRun Sandbox Provider，端口 18081
+├── 40-RAGIntegrations # Simple/Dify/RAGFlow/Haystack/Bailian RAG 集成，端口 18081
+├── 41-MemoryIntegrations # Mem0/ReMe/Bailian 与 LongTermMemory 版本边界，端口 18081
+└── 42-SkillRepositoryBackends # Git/MySQL/PostgreSQL/Nacos Skill Repository，端口 18081
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -63,7 +66,7 @@ learn-agentscope-demo
 export DASHSCOPE_API_KEY="你的 DashScope API Key"
 ```
 
-`29-ModelLayerAndRegistry`、`31-ExternalToolAndHITL`、`32-SkillMarketplaceAndSelfLearning`、`33-AdminOpsControlPlane`、`34-AGUIProtocol`、`35-A2AProtocol`、`36-ChatCompletionsCompatibility`、`37-MultiModelProviders`、`38-DistributedBackends`、`39-SandboxProviders` 的核心实验均不需要外部模型 API Key。第 37 课只做 Provider SPI/路由检查，第 38 课默认使用 H2，第 39 课默认只构造 Sandbox Spec，不创建远端沙箱。
+`29-ModelLayerAndRegistry`、`31-ExternalToolAndHITL`、`32-SkillMarketplaceAndSelfLearning`、`33-AdminOpsControlPlane`、`34-AGUIProtocol`、`35-A2AProtocol`、`36-ChatCompletionsCompatibility`、`37-MultiModelProviders`、`38-DistributedBackends`、`39-SandboxProviders`、`40-RAGIntegrations`、`41-MemoryIntegrations`、`42-SkillRepositoryBackends` 的核心实验均不需要外部模型 API Key。第 40 课使用本地 deterministic Embedding + InMemoryStore，第 41 课只构造官方 Memory Adapter 并检查版本契约，第 42 课使用本地临时 Git 仓库做真实 clone/sync/read。
 
 环境变量只对当前终端会话生效，不会写入代码或提交到 GitHub。
 
@@ -429,3 +432,30 @@ AgentScope Java 2.0.1 的旧 `GenericRAGHook` 已 deprecated/forRemoval，本节
 
 学习 Docker、Kubernetes agent-sandbox、E2B、Daytona、AgentRun 五种 `SandboxFilesystemSpec` Provider，理解它们如何保持同一套 Harness 文件/执行语义，并区分“Agent 服务部署到 K8s”和“Agent 在 K8s Sandbox 中执行代码”。默认只构造真实官方 Spec，不创建远端 Sandbox，因此无需云凭证。见
 [`39-SandboxProviders/README.md`](39-SandboxProviders/README.md)。
+
+## 40-RAGIntegrations
+
+```bash
+./mvnw -pl 40-RAGIntegrations spring-boot:run
+```
+
+使用真实 `SimpleKnowledge + EmbeddingModel + InMemoryStore + RetrieveConfig` 完成离线文档入库与向量检索，同时对比 Dify、RAGFlow、Haystack、Bailian 官方 Knowledge Adapter。默认使用 deterministic Embedding，不需要外部 API Key。见
+[`40-RAGIntegrations/README.md`](40-RAGIntegrations/README.md)。
+
+## 41-MemoryIntegrations
+
+```bash
+./mvnw -pl 41-MemoryIntegrations spring-boot:run
+```
+
+学习 Mem0、ReMe、Bailian 三种官方 Memory Integration，并重点识别 AgentScope Java 2.0.1 的版本边界：这些 Adapter 仍存在，但它们共同实现的 Core `LongTermMemory` 已从 2.0.0 起 `@Deprecated(forRemoval = true)`。本课只做真实 Builder/契约实验，并对比第 13 课 Harness Memory 与 application-layer memory。见
+[`41-MemoryIntegrations/README.md`](41-MemoryIntegrations/README.md)。
+
+## 42-SkillRepositoryBackends
+
+```bash
+./mvnw -pl 42-SkillRepositoryBackends spring-boot:run
+```
+
+学习 Git、MySQL、PostgreSQL、Nacos 四种官方 Skill Repository。自动化测试会创建本地临时 Git 仓库、提交 `skills/demo/SKILL.md`，再通过真实 `GitSkillRepository` clone/sync/read，数据库与 Nacos 部分则讲清 CRUD/中心化治理边界。见
+[`42-SkillRepositoryBackends/README.md`](42-SkillRepositoryBackends/README.md)。
