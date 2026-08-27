@@ -30,6 +30,8 @@ public class PermissionLabService {
         Map<String, String> out = new LinkedHashMap<>();
         out.put("explore.readOnly", decide(PermissionMode.EXPLORE, readOnly, Map.of("target", "service-a")));
         out.put("explore.mutation", decide(PermissionMode.EXPLORE, mutation, Map.of("target", "service-a")));
+        out.put("acceptEdits.readOnly", decide(PermissionMode.ACCEPT_EDITS, readOnly, Map.of("target", "service-a")));
+        out.put("acceptEdits.mutation", decide(PermissionMode.ACCEPT_EDITS, mutation, Map.of("target", "service-a")));
         out.put("default.mutation", decide(PermissionMode.DEFAULT, mutation, Map.of("target", "service-a")));
         out.put("dontAsk.mutation", decide(PermissionMode.DONT_ASK, mutation, Map.of("target", "service-a")));
         out.put("bypass.mutation", decide(PermissionMode.BYPASS, mutation, Map.of("target", "service-a")));
