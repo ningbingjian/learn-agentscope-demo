@@ -1,8 +1,10 @@
 # 40-RAGIntegrations
 
-本课目标：把第 15 课的“应用层 RAG”继续深入到 AgentScope Java 2.0.1 官方 RAG Integration 生态。
+本课目标：把第 15 课的“应用层 RAG”继续深入到 AgentScope Java 2.0.1 **仍然发布的官方 RAG Integration 生态**。
 
-第 15 课解决的是架构边界：应用层负责 Retrieve，Agent 负责回答。本课解决的是工程选型：**检索能力到底由谁提供，以及 AgentScope 如何把不同 RAG 后端统一成 Knowledge。**
+第 15 课解决的是架构边界：应用层负责 Retrieve，Agent 负责回答。本课解决的是工程选型：检索能力到底由谁提供，以及现有 AgentScope Adapter 如何接 Simple / Dify / RAGFlow / Haystack / Bailian。
+
+> **2.0.1 版本边界必须先知道：**这些 RAG extension 在 2.0.1 中仍然存在并有官方 Integration 文档，但 Core `Knowledge`、`Document` 等 `io.agentscope.core.rag` 类型已经从 2.0.0 起标记为 `@Deprecated(forRemoval = true)`，源码明确建议“在 application layer 集成 retrieval”。因此本课用于理解/维护现有 Adapter、学习其检索实现；全新生产系统仍优先沿用第 15 课的 application-layer retrieval 边界，不应重新把业务强绑定到待移除的 Core RAG API。
 
 ---
 
@@ -10,21 +12,21 @@
 
 完成后应该能回答：
 
-1. `Knowledge` 在 AgentScope RAG 中是什么抽象？
+1. `Knowledge` 在现存 AgentScope RAG Adapter 中是什么抽象？
 2. Simple / Dify / RAGFlow / Haystack / Bailian 有什么区别？
 3. 什么情况下自己维护 Embedding + Vector DB？
 4. 什么情况下应该接第三方 RAG 平台？
 5. `SimpleKnowledge` 的文档入库、Embedding、向量检索链路是什么？
 6. 为什么 Embedding Model 与聊天 Model 是两个不同模型？
-7. 向量库为什么可以从 InMemory 换成 PgVector / Milvus / Qdrant / Elasticsearch，而 Agent 代码基本不变？
-8. `RetrieveConfig` 如何控制 TopK、threshold 和 metadata filter？
-9. 如何把 Knowledge 接到 ReActAgent 的 Agentic RAG？
+7. 向量库为什么可以从 InMemory 换成 PgVector / Milvus / Qdrant / Elasticsearch？
+8. `RetrieveConfig` 如何控制 TopK、threshold？
+9. 为什么新项目仍推荐 application-layer retrieval？
 
 ---
 
 ## 2. 官方 RAG Integration
 
-AgentScope Java 2.0.1 主要提供五类 RAG 集成：
+AgentScope Java 2.0.1 仍发布五类 RAG 集成：
 
 | Provider | Maven artifact | 核心类 | 适合场景 |
 | --- | --- | --- | --- |
@@ -34,7 +36,7 @@ AgentScope Java 2.0.1 主要提供五类 RAG 集成：
 | Haystack | `agentscope-extensions-rag-haystack` | `HayStackKnowledge` | Haystack 服务化检索 |
 | Bailian | `agentscope-extensions-rag-bailian` | `BailianKnowledge` | 阿里云百炼知识库 |
 
-它们背后实现方式不同，但对 Agent 的目标是一致的：
+这些 Adapter 背后实现方式不同，但现有统一契约是：
 
 ```text
 query
@@ -42,11 +44,9 @@ query
 Knowledge.retrieve(...)
   ↓
 List<Document>
-  ↓
-Agent context
-  ↓
-LLM answer
 ```
+
+再次强调：这条 `Knowledge/Document` 契约在 2.0.1 Core 中已经 `forRemoval`，所以理解它与继续在新架构里强依赖它是两回事。
 
 ---
 
@@ -139,7 +139,7 @@ InMemoryStore store = InMemoryStore.builder()
     .build();
 ```
 
-生产环境可换成：
+现有 extension 还提供：
 
 ```text
 PgVectorStore
@@ -148,7 +148,7 @@ QdrantStore
 ElasticsearchStore
 ```
 
-这里体现一个非常重要的抽象：
+这里体现一个重要抽象：
 
 ```text
 SimpleKnowledge
@@ -181,7 +181,17 @@ Document doc = new Document(
 );
 ```
 
-Document 是 RAG 世界里的持久化/检索单元。
+这里有一个容易误解的细节：
+
+```text
+Document#getId()
+= 框架根据 doc_id + chunk_id + content 生成的确定性 UUID
+
+Document#getMetadata().getDocId()
+= 业务传入的 doc_id
+```
+
+因此本课 API 返回结果同时展示业务 `id` 和 `documentUuid`，不要把两者混为一谈。
 
 ### Step 6：写入文档
 
@@ -236,9 +246,6 @@ limit
 
 scoreThreshold
 = 低于多少相似度直接不要
-
-metadata
-= 只从指定业务范围检索
 ```
 
 生产系统中 threshold 不能随便定死，应该结合 embedding 模型、数据分布和评估集调参。
@@ -278,12 +285,12 @@ retrieve
 rerank
 ```
 
-AgentScope 只做 Adapter：
+AgentScope 的现存 extension 做 Adapter：
 
 ```text
-AgentScope
+Application
    ↓
-Knowledge interface
+AgentScope RAG Adapter
    ↓
 Platform API
 ```
@@ -303,8 +310,6 @@ RerankConfig
 
 适合已经把企业文档上传到 Dify Dataset 的项目。
 
-你不再需要在 Java 服务里自己维护 Vector DB。
-
 ---
 
 ## 8. RAGFlow
@@ -323,9 +328,7 @@ RAGFlowDocumentConverter
   ↓
 RAGFlow parsing/chunking/index
   ↓
-AgentScope Java
-  ↓
-RAGFlowKnowledge.retrieve
+Java application retrieval adapter
 ```
 
 ---
@@ -338,7 +341,7 @@ RAGFlowKnowledge.retrieve
 HayStackKnowledge
 ```
 
-适合 Python 侧已经用 Haystack 构建好检索 Pipeline，而 Java Agent 只需要消费检索 API 的架构。
+适合 Python 侧已经用 Haystack 构建好检索 Pipeline，而 Java 服务只消费检索 API 的架构。
 
 ---
 
@@ -369,25 +372,38 @@ ReActAgent
 第 40 课：
 
 ```text
-Knowledge Provider
+现存 RAG Provider Adapter
       ↓
 Simple / Dify / RAGFlow / Haystack / Bailian
       ↓
-统一 Document 结果
+检索结果
 ```
 
-两者不冲突。
+两课不是互相替代，而是：
 
-如果业务希望严格控制何时检索，继续采用 application-layer retrieval。
+```text
+第 40 课
+= 看懂具体 provider/backend 怎么做 retrieval
 
-如果希望 Agent 自己决定何时调用知识库，则可以使用 Agentic RAG：
-
-```java
-ReActAgent.builder()
-    .knowledge(knowledge)
-    .ragMode(RAGMode.AGENTIC)
-    .build();
+第 15 课
+= 决定新系统应该把 retrieval 放在哪一层
 ```
+
+对于 AgentScope Java 2.0.1 新项目，仍建议：
+
+```text
+Application Layer
+    ↓
+Retriever Adapter
+    ↓
+Dify / RAGFlow / Simple vector DB / Bailian ...
+    ↓
+Context Injection
+    ↓
+Agent
+```
+
+这样可以复用 provider 能力，又不把业务绑定在 `forRemoval` 的 Core RAG API 上。
 
 ---
 
@@ -477,20 +493,30 @@ AgentScope document scoring
 6. 使用 PDFReader 导入 PDF。
 7. 把 local embedding 换成 OllamaTextEmbedding。
 8. 最后再连接 Dify 或 RAGFlow。
+9. 自己写一个 application-layer `Retriever` 接口，把 SimpleKnowledge 或第三方 API 隔离在 Adapter 之后。
 
 ---
 
 ## 16. 本课结论
 
-记住这一条主线：
+记住两条主线：
 
 ```text
-RAG Provider 不同
+Provider 不同
+    ↓
+检索实现不同
+    ↓
+最终都是给 Agent 提供相关上下文
+```
+
+以及：
+
+```text
+2.0.1 官方 RAG extensions 仍存在
+        +
+Core Knowledge / Document 已 forRemoval
         ↓
-Knowledge 实现不同
-        ↓
-但 Agent 需要的仍然是
-query → List<Document>
+新系统保持 application-layer retrieval
 ```
 
 真正重要的是保持检索层与 Agent 推理层解耦。
