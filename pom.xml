@@ -49,6 +49,9 @@
         <module>28-MessageAndEventModel</module>
         <module>29-ModelLayerAndRegistry</module>
         <module>30-AdvancedTooling</module>
+        <module>31-ExternalToolAndHITL</module>
+        <module>32-SkillMarketplaceAndSelfLearning</module>
+        <module>33-AdminOpsControlPlane</module>
     </modules>
 
     <properties>
