@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@SuppressWarnings("removal")
 public class RagIntegrationService {
 
     private final SimpleKnowledge knowledge;
@@ -43,11 +44,15 @@ public class RagIntegrationService {
         if (hits == null) {
             return List.of();
         }
-        return hits.stream().map(doc -> Map.<String, Object>of(
-                "id", doc.getId(),
-                "text", textById.getOrDefault(doc.getId(), ""),
-                "score", doc.getScore() == null ? 0.0 : doc.getScore()
-        )).toList();
+        return hits.stream().map(doc -> {
+            String businessId = doc.getMetadata().getDocId();
+            return Map.<String, Object>of(
+                    "id", businessId,
+                    "documentUuid", doc.getId(),
+                    "text", textById.getOrDefault(businessId, ""),
+                    "score", doc.getScore() == null ? 0.0 : doc.getScore()
+            );
+        }).toList();
     }
 
     public List<Map<String, String>> providers() {
