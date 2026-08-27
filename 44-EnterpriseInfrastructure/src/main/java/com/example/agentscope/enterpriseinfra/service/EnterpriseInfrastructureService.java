@@ -7,7 +7,6 @@ import io.agentscope.core.nacos.skill.NacosSkillRepository;
 import io.agentscope.extensions.higress.HigressMcpClientBuilder;
 import io.agentscope.extensions.higress.HigressToolkit;
 import io.agentscope.extensions.scheduler.config.ScheduleConfig;
-import io.agentscope.extensions.scheduler.config.ScheduleMode;
 import io.agentscope.extensions.scheduler.quartz.QuartzAgentScheduler;
 import io.agentscope.extensions.scheduler.xxljob.XxlJobAgentScheduler;
 import java.util.List;
@@ -40,14 +39,12 @@ public class EnterpriseInfrastructureService {
 
     public Map<String, Object> scheduleExamples() {
         ScheduleConfig fixedRate = ScheduleConfig.builder()
-                .scheduleMode(ScheduleMode.FIXED_RATE)
                 .fixedRate(5_000L)
                 .initialDelay(1_000L)
                 .build();
 
         ScheduleConfig cron = ScheduleConfig.builder()
-                .scheduleMode(ScheduleMode.CRON)
-                .cronExpression("0 0 8 * * ?")
+                .cron("0 0 8 * * ?")
                 .build();
 
         return Map.of(
