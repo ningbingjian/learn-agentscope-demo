@@ -1,0 +1,6 @@
+server:
+  port: 18081
+
+spring:
+  application:
+    name: lesson-45-studio-and-training
