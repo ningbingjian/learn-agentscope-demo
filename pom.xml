@@ -58,6 +58,9 @@
         <module>37-MultiModelProviders</module>
         <module>38-DistributedBackends</module>
         <module>39-SandboxProviders</module>
+        <module>40-RAGIntegrations</module>
+        <module>41-MemoryIntegrations</module>
+        <module>42-SkillRepositoryBackends</module>
     </modules>
 
     <properties>
@@ -171,6 +174,66 @@
             <dependency>
                 <groupId>io.agentscope</groupId>
                 <artifactId>agentscope-extensions-sandbox-agentrun</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-rag-simple</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-rag-dify</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-rag-ragflow</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-rag-haystack</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-rag-bailian</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-mem0</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-reme</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-memory-bailian</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-skill-git-repository</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-skill-mysql-repository</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-skill-postgresql-repository</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-nacos-skill</artifactId>
                 <version>${agentscope.version}</version>
             </dependency>
             <dependency>
