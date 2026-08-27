@@ -52,6 +52,9 @@
         <module>31-ExternalToolAndHITL</module>
         <module>32-SkillMarketplaceAndSelfLearning</module>
         <module>33-AdminOpsControlPlane</module>
+        <module>34-AGUIProtocol</module>
+        <module>35-A2AProtocol</module>
+        <module>36-ChatCompletionsCompatibility</module>
     </modules>
 
     <properties>
@@ -90,6 +93,26 @@
             <dependency>
                 <groupId>io.agentscope</groupId>
                 <artifactId>agentscope-extensions-redis</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-agui</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-agui-spring-boot-starter</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-a2a-spring-boot-starter</artifactId>
+                <version>${agentscope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-chat-completions-web-starter</artifactId>
                 <version>${agentscope.version}</version>
             </dependency>
             <dependency>

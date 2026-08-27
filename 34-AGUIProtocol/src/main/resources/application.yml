@@ -1,0 +1,14 @@
+server:
+  port: 18081
+
+agentscope:
+  agui:
+    path-prefix: /agui
+    default-agent-id: assistant
+    enable-path-routing: true
+    cors-enabled: true
+    enable-reasoning: true
+    emit-state-events: true
+    emit-tool-call-args: true
+    emit-token-usage: false
+    server-side-memory: false

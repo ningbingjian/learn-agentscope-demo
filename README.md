@@ -38,7 +38,10 @@ learn-agentscope-demo
 ├── 30-AdvancedTooling # ToolGroup、Context 注入与 ToolEmitter，端口 18081
 ├── 31-ExternalToolAndHITL # 外部执行 Tool 的暂停、回填与恢复，端口 18081
 ├── 32-SkillMarketplaceAndSelfLearning # Skill 市场、自学习、审核与 Curator，端口 18081
-└── 33-AdminOpsControlPlane # Admin Starter、Actuator 与运维控制面，端口 18081
+├── 33-AdminOpsControlPlane # Admin Starter、Actuator 与运维控制面，端口 18081
+├── 34-AGUIProtocol # AgentEvent 到 AG-UI 标准前端事件协议，端口 18081
+├── 35-A2AProtocol # A2A Server、AgentCard、JSON-RPC 与 A2aAgent Client，端口 18081
+└── 36-ChatCompletionsCompatibility # OpenAI Chat Completions 兼容接口，端口 18081
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -57,7 +60,7 @@ learn-agentscope-demo
 export DASHSCOPE_API_KEY="你的 DashScope API Key"
 ```
 
-`29-ModelLayerAndRegistry`、`31-ExternalToolAndHITL`、`32-SkillMarketplaceAndSelfLearning`、`33-AdminOpsControlPlane` 使用仓库内自带的 deterministic Model 或直接测试框架能力，不需要外部模型 API Key。
+`29-ModelLayerAndRegistry`、`31-ExternalToolAndHITL`、`32-SkillMarketplaceAndSelfLearning`、`33-AdminOpsControlPlane`、`34-AGUIProtocol`、`35-A2AProtocol`、`36-ChatCompletionsCompatibility` 使用仓库内自带的 deterministic Model 或直接测试框架能力，不需要外部模型 API Key。
 
 环境变量只对当前终端会话生效，不会写入代码或提交到 GitHub。
 
@@ -369,3 +372,30 @@ AgentScope Java 2.0.1 的旧 `GenericRAGHook` 已 deprecated/forRemoval，本节
 
 学习 `agentscope-admin-spring-boot-starter` 的完整运维控制面：`status / agents / tools / models / usage / commands / permissions / subagents / doctor` Actuator endpoints、`/v1/admin` Session Data Plane，以及 `write-enabled + Admin Token` 写操作保护。模块默认只开启读控制面，并使用本地 deterministic Model。见
 [`33-AdminOpsControlPlane/README.md`](33-AdminOpsControlPlane/README.md)。
+
+## 34-AGUIProtocol
+
+```bash
+./mvnw -pl 34-AGUIProtocol spring-boot:run
+```
+
+学习 `AguiAgentAdapter + AguiAgentRegistry`，把 AgentScope 的 `AgentEvent` 映射为 AG-UI 的 `RUN_* / TEXT_MESSAGE_* / TOOL_CALL_* / interrupt-resume` 标准前端事件，并通过 Starter 自动开放 `/agui/run` SSE 接口。模块使用 deterministic Model，无需 API Key。见
+[`34-AGUIProtocol/README.md`](34-AGUIProtocol/README.md)。
+
+## 35-A2AProtocol
+
+```bash
+./mvnw -pl 35-A2AProtocol spring-boot:run
+```
+
+学习 A2A Server/Client：Spring Starter 从 `ReActAgent` 自动创建 `AgentScopeA2aServer`，开放 `/.well-known/agent-card.json` 与 JSON-RPC，同时使用 `A2aAgent` 将远端 A2A Agent 包装回统一 `Agent` 抽象。模块使用 deterministic Model，无需 API Key。见
+[`35-A2AProtocol/README.md`](35-A2AProtocol/README.md)。
+
+## 36-ChatCompletionsCompatibility
+
+```bash
+./mvnw -pl 36-ChatCompletionsCompatibility spring-boot:run
+```
+
+学习 `agentscope-chat-completions-web-starter` 将 ReActAgent 暴露为 OpenAI 风格 `/v1/chat/completions`，重点理解其 100% stateless、客户端持有完整 history、每请求 fresh prototype Agent，以及非流式 JSON / SSE stream / OpenAI Tool Schema 兼容。模块使用 deterministic Model，无需 API Key。见
+[`36-ChatCompletionsCompatibility/README.md`](36-ChatCompletionsCompatibility/README.md)。

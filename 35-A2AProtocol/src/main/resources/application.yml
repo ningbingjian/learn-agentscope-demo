@@ -1,0 +1,20 @@
+server:
+  port: 18081
+
+agentscope:
+  a2a:
+    server:
+      enabled: true
+      card:
+        name: lesson-a2a-agent
+        description: AgentScope Java 2.0.1 A2A lesson agent
+        url: http://localhost:18081
+        version: 1.0.0
+        default-input-modes:
+          - text
+        default-output-modes:
+          - text
+        preferred-transport: JSONRPC
+      transports:
+        jsonrpc:
+          enabled: true
