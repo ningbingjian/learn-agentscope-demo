@@ -21,7 +21,7 @@ public class SkillRepositoryCatalogService {
                 backend("postgresql", "agentscope-extensions-skill-postgresql-repository", PostgresSkillRepository.class,
                         true, "PostgreSQL-backed CRUD skill center"),
                 backend("nacos", "agentscope-extensions-nacos-skill", NacosSkillRepository.class,
-                        true, "Centralized configuration/discovery style skill repository")
+                        false, "Read-only Nacos AI skill packages with version/label resolution")
         );
     }
 
