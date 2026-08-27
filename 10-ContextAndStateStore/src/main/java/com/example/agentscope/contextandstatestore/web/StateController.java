@@ -3,7 +3,6 @@ package com.example.agentscope.contextandstatestore.web;
 import io.agentscope.core.ReActAgent;
 import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.message.Msg;
-import io.agentscope.core.message.UserMessage;
 import io.agentscope.core.state.AgentState;
 import io.agentscope.core.state.JsonFileAgentStateStore;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -49,7 +48,7 @@ public class StateController {
 
         ReActAgent agent = agentFor(storeType);
         RuntimeContext context = context(request.userId(), request.sessionId());
-        Msg reply = agent.call(new UserMessage(request.message()), context).block();
+        Msg reply = agent.call(request.message(), context).block();
         if (reply == null) {
             throw new IllegalStateException("Agent returned no reply");
         }
