@@ -64,6 +64,9 @@
         <module>43-EnterpriseChannels</module>
         <module>44-EnterpriseInfrastructure</module>
         <module>45-StudioAndTraining</module>
+        <module>46-AgentTeams</module>
+        <module>47-AsyncToolAndWakeup</module>
+        <module>48-AdvancedPermissionAndSecurity</module>
     </modules>
 
     <properties>
