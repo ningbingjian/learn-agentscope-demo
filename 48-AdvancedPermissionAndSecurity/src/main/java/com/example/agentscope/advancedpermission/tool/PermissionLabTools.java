@@ -1,6 +1,7 @@
 package com.example.agentscope.advancedpermission.tool;
 
 import io.agentscope.core.message.ToolResultBlock;
+import io.agentscope.core.permission.PermissionBehavior;
 import io.agentscope.core.permission.PermissionContextState;
 import io.agentscope.core.permission.PermissionDecision;
 import io.agentscope.core.tool.ToolBase;
@@ -45,7 +46,7 @@ public final class PermissionLabTools {
                 return Mono.just(PermissionDecision.deny("safety policy forbids target " + target));
             }
             if (target.startsWith("prod-")) {
-                return Mono.just(PermissionDecision.ask("safety review required for production target " + target));
+                return Mono.just(safetyAsk("Production deployment requires explicit review: " + target));
             }
             return Mono.just(PermissionDecision.passthrough("normal deployment target"));
         }
@@ -74,7 +75,7 @@ public final class PermissionLabTools {
         public Mono<PermissionDecision> checkPermissions(Map<String, Object> input, PermissionContextState context) {
             String path = String.valueOf(input.getOrDefault("path", ""));
             if (isDangerousPath(path)) {
-                return Mono.just(PermissionDecision.ask("safety check: dangerous path " + path));
+                return Mono.just(safetyAsk("Dangerous path requires explicit review: " + path));
             }
             return Mono.just(PermissionDecision.passthrough("normal path"));
         }
@@ -82,6 +83,14 @@ public final class PermissionLabTools {
         @Override public Mono<ToolResultBlock> callAsync(ToolCallParam param) {
             return Mono.just(ToolResultBlock.text("written"));
         }
+    }
+
+    private static PermissionDecision safetyAsk(String message) {
+        return PermissionDecision.builder()
+                .behavior(PermissionBehavior.ASK)
+                .message(message)
+                .decisionReason("safety policy")
+                .build();
     }
 
     private static Map<String, Object> objectSchema(String property) {
