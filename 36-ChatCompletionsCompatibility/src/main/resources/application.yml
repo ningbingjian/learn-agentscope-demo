@@ -1,0 +1,7 @@
+server:
+  port: 18081
+
+agentscope:
+  chat-completions:
+    enabled: true
+    base-path: /v1/chat/completions

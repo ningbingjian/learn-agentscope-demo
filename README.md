@@ -38,7 +38,19 @@ learn-agentscope-demo
 ├── 30-AdvancedTooling # ToolGroup、Context 注入与 ToolEmitter，端口 18081
 ├── 31-ExternalToolAndHITL # 外部执行 Tool 的暂停、回填与恢复，端口 18081
 ├── 32-SkillMarketplaceAndSelfLearning # Skill 市场、自学习、审核与 Curator，端口 18081
-└── 33-AdminOpsControlPlane # Admin Starter、Actuator 与运维控制面，端口 18081
+├── 33-AdminOpsControlPlane # Admin Starter、Actuator 与运维控制面，端口 18081
+├── 34-AGUIProtocol # AgentEvent 到 AG-UI 标准前端事件协议，端口 18081
+├── 35-A2AProtocol # A2A Server、AgentCard、JSON-RPC 与 A2aAgent Client，端口 18081
+├── 36-ChatCompletionsCompatibility # OpenAI Chat Completions 兼容接口，端口 18081
+├── 37-MultiModelProviders # 多模型 Provider SPI 与 ModelRegistry 路由，端口 18081
+├── 38-DistributedBackends # Redis/MySQL/OSS、JDBC CAS 与混合 DistributedStore，端口 18081
+├── 39-SandboxProviders # Docker/K8s/E2B/Daytona/AgentRun Sandbox Provider，端口 18081
+├── 40-RAGIntegrations # Simple/Dify/RAGFlow/Haystack/Bailian RAG 集成，端口 18081
+├── 41-MemoryIntegrations # Mem0/ReMe/Bailian 与 LongTermMemory 版本边界，端口 18081
+├── 42-SkillRepositoryBackends # Git/MySQL/PostgreSQL/Nacos Skill Repository，端口 18081
+├── 43-EnterpriseChannels # DingTalk/Feishu/WeCom/GitHub/GitLab Channel，端口 18081
+├── 44-EnterpriseInfrastructure # Scheduler/Nacos/Higress 企业基础设施，端口 18081
+└── 45-StudioAndTraining # AgentScope Studio 与 Online Training，端口 18081
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -57,7 +69,7 @@ learn-agentscope-demo
 export DASHSCOPE_API_KEY="你的 DashScope API Key"
 ```
 
-`29-ModelLayerAndRegistry`、`31-ExternalToolAndHITL`、`32-SkillMarketplaceAndSelfLearning`、`33-AdminOpsControlPlane` 使用仓库内自带的 deterministic Model 或直接测试框架能力，不需要外部模型 API Key。
+`29-ModelLayerAndRegistry`、`31-ExternalToolAndHITL`、`32-SkillMarketplaceAndSelfLearning`、`33-AdminOpsControlPlane`、`34-AGUIProtocol`、`35-A2AProtocol`、`36-ChatCompletionsCompatibility`、`37-MultiModelProviders`、`38-DistributedBackends`、`39-SandboxProviders`、`40-RAGIntegrations`、`41-MemoryIntegrations`、`42-SkillRepositoryBackends`、`43-EnterpriseChannels`、`44-EnterpriseInfrastructure`、`45-StudioAndTraining` 的核心实验均不需要外部模型 API Key。第 40 课使用本地 deterministic Embedding + InMemoryStore，第 41 课只构造官方 Memory Adapter 并检查版本契约，第 42 课使用本地临时 Git 仓库做真实 clone/sync/read；第 43 课只测试 Channel Adapter 与公共防护层，第 44 课只构造调度配置和真实基础设施类型，第 45 课只 build TrainingRunner、不 start，也不初始化 Studio 网络连接。
 
 环境变量只对当前终端会话生效，不会写入代码或提交到 GitHub。
 
@@ -369,3 +381,111 @@ AgentScope Java 2.0.1 的旧 `GenericRAGHook` 已 deprecated/forRemoval，本节
 
 学习 `agentscope-admin-spring-boot-starter` 的完整运维控制面：`status / agents / tools / models / usage / commands / permissions / subagents / doctor` Actuator endpoints、`/v1/admin` Session Data Plane，以及 `write-enabled + Admin Token` 写操作保护。模块默认只开启读控制面，并使用本地 deterministic Model。见
 [`33-AdminOpsControlPlane/README.md`](33-AdminOpsControlPlane/README.md)。
+
+## 34-AGUIProtocol
+
+```bash
+./mvnw -pl 34-AGUIProtocol spring-boot:run
+```
+
+学习 `AguiAgentAdapter + AguiAgentRegistry`，把 AgentScope 的 `AgentEvent` 映射为 AG-UI 的 `RUN_* / TEXT_MESSAGE_* / TOOL_CALL_* / interrupt-resume` 标准前端事件，并通过 Starter 自动开放 `/agui/run` SSE 接口。模块使用 deterministic Model，无需 API Key。见
+[`34-AGUIProtocol/README.md`](34-AGUIProtocol/README.md)。
+
+## 35-A2AProtocol
+
+```bash
+./mvnw -pl 35-A2AProtocol spring-boot:run
+```
+
+学习 A2A Server/Client：Spring Starter 从 `ReActAgent` 自动创建 `AgentScopeA2aServer`，开放 `/.well-known/agent-card.json` 与 JSON-RPC，同时使用 `A2aAgent` 将远端 A2A Agent 包装回统一 `Agent` 抽象。模块使用 deterministic Model，无需 API Key。见
+[`35-A2AProtocol/README.md`](35-A2AProtocol/README.md)。
+
+## 36-ChatCompletionsCompatibility
+
+```bash
+./mvnw -pl 36-ChatCompletionsCompatibility spring-boot:run
+```
+
+学习 `agentscope-chat-completions-web-starter` 将 ReActAgent 暴露为 OpenAI 风格 `/v1/chat/completions`，重点理解其 100% stateless、客户端持有完整 history、每请求 fresh prototype Agent，以及非流式 JSON / SSE stream / OpenAI Tool Schema 兼容。模块使用 deterministic Model，无需 API Key。见
+[`36-ChatCompletionsCompatibility/README.md`](36-ChatCompletionsCompatibility/README.md)。
+
+## 37-MultiModelProviders
+
+```bash
+./mvnw -pl 37-MultiModelProviders spring-boot:run
+```
+
+同时引入 AgentScope Java 2.0.1 的 OpenAI、DashScope、Gemini、Anthropic、Ollama 模型扩展，通过真实 `ServiceLoader<ModelProvider>` 与 `ModelRegistry.canResolve()` 观察 OpenAI / DeepSeek / Kimi / GLM / MiniMax / Qwen / Gemini / Claude / Ollama 的统一 Provider 路由。核心实验不创建模型、不访问外网、不需要 API Key。见
+[`37-MultiModelProviders/README.md`](37-MultiModelProviders/README.md)。
+
+## 38-DistributedBackends
+
+```bash
+./mvnw -pl 38-DistributedBackends spring-boot:run
+```
+
+深化 `DistributedStore`：对比 Redis / MySQL-JDBC / OSS 的 AgentStateStore、BaseStore、Snapshot、ExecutionGuard 能力，使用 H2 MySQL compatibility mode 真跑 `JdbcStore` 与 `putIfVersion` CAS，并演示 `DistributedStore.builder()` 混合不同组件。默认无需 Redis/MySQL/OSS 服务。见
+[`38-DistributedBackends/README.md`](38-DistributedBackends/README.md)。
+
+## 39-SandboxProviders
+
+```bash
+./mvnw -pl 39-SandboxProviders spring-boot:run
+```
+
+学习 Docker、Kubernetes agent-sandbox、E2B、Daytona、AgentRun 五种 `SandboxFilesystemSpec` Provider，理解它们如何保持同一套 Harness 文件/执行语义，并区分“Agent 服务部署到 K8s”和“Agent 在 K8s Sandbox 中执行代码”。默认只构造真实官方 Spec，不创建远端 Sandbox，因此无需云凭证。见
+[`39-SandboxProviders/README.md`](39-SandboxProviders/README.md)。
+
+## 40-RAGIntegrations
+
+```bash
+./mvnw -pl 40-RAGIntegrations spring-boot:run
+```
+
+使用真实 `SimpleKnowledge + EmbeddingModel + InMemoryStore + RetrieveConfig` 完成离线文档入库与向量检索，同时对比 Dify、RAGFlow、Haystack、Bailian 官方 Knowledge Adapter。默认使用 deterministic Embedding，不需要外部 API Key。见
+[`40-RAGIntegrations/README.md`](40-RAGIntegrations/README.md)。
+
+## 41-MemoryIntegrations
+
+```bash
+./mvnw -pl 41-MemoryIntegrations spring-boot:run
+```
+
+学习 Mem0、ReMe、Bailian 三种官方 Memory Integration，并重点识别 AgentScope Java 2.0.1 的版本边界：这些 Adapter 仍存在，但它们共同实现的 Core `LongTermMemory` 已从 2.0.0 起 `@Deprecated(forRemoval = true)`。本课只做真实 Builder/契约实验，并对比第 13 课 Harness Memory 与 application-layer memory。见
+[`41-MemoryIntegrations/README.md`](41-MemoryIntegrations/README.md)。
+
+## 42-SkillRepositoryBackends
+
+```bash
+./mvnw -pl 42-SkillRepositoryBackends spring-boot:run
+```
+
+学习 Git、MySQL、PostgreSQL、Nacos 四种官方 Skill Repository。自动化测试会创建本地临时 Git 仓库、提交 `skills/demo/SKILL.md`，再通过真实 `GitSkillRepository` clone/sync/read，数据库与 Nacos 部分则讲清 CRUD/中心化治理边界。见
+[`42-SkillRepositoryBackends/README.md`](42-SkillRepositoryBackends/README.md)。
+
+## 43-EnterpriseChannels
+
+```bash
+./mvnw -pl 43-EnterpriseChannels spring-boot:run
+```
+
+学习 DingTalk、Feishu、WeCom、GitHub、GitLab 五种官方 Channel Adapter，以及公共 `IdempotencyStore / BotLoopGuard` 的 webhook 去重与 bot-loop 防护。默认不连接真实平台。见
+[`43-EnterpriseChannels/README.md`](43-EnterpriseChannels/README.md)。
+
+## 44-EnterpriseInfrastructure
+
+```bash
+./mvnw -pl 44-EnterpriseInfrastructure spring-boot:run
+```
+
+学习 Scheduler（Quartz/XXL-Job）、Nacos（A2A/Prompt/Skill）与 Higress MCP Gateway 的企业基础设施定位；默认只构造 `ScheduleConfig` 与真实官方类型，不连接外部基础设施。见
+[`44-EnterpriseInfrastructure/README.md`](44-EnterpriseInfrastructure/README.md)。
+
+## 45-StudioAndTraining
+
+```bash
+./mvnw -pl 45-StudioAndTraining spring-boot:run
+```
+
+学习 AgentScope Studio 的消息/trace/HITL 调试链路与 `TrainingRunner` 的线上采样、reward、Trinity commit 闭环。核心测试只 build `TrainingRunner`、不 `start()`，也不初始化 Studio 网络连接。见
+[`45-StudioAndTraining/README.md`](45-StudioAndTraining/README.md)。
