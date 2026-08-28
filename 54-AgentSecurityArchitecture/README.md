@@ -115,7 +115,9 @@ ALLOW / ASK / DENY
 Sandbox execution
 ```
 
-`BYPASS` 不是“关闭一切安全”。本课 `SensitiveWriteTool` 对 `.env / .ssh / .kube` 等危险路径返回带 `decisionReason=safety` 的 ASK，因此 BYPASS fallback 不能把它覆盖。
+`BYPASS` 不是“关闭一切安全”。AgentScope Java 2.0.1 默认危险文件包含 `.env` 等敏感配置，默认危险目录包含 `.git / .vscode / .idea / .ssh`；**默认列表不包含 `.kube`**。本课的 `SensitiveWriteTool` 在保留这些默认目录语义的基础上，显式把 `.kube` 加入自己的危险目录策略，因此 `.env / .ssh / .kube` 都会返回带 `decisionReason=safety` 的 ASK，BYPASS fallback 不能把它覆盖。
+
+这里还有一个容易踩坑的点：`ToolBase.Builder#dangerousDirectories(...)` 是**替换**默认目录列表，不是 append。所以如果业务要额外保护 `.kube`，应像本课一样把默认目录一起保留，而不是只传 `List.of(".kube")`。
 
 ## 6. Sandbox 是 Blast Radius Boundary
 
@@ -255,7 +257,7 @@ curl -X POST http://localhost:18081/api/security/skill-scan \
 
 1. SAFE / CAUTION / DANGEROUS Skill policy。
 2. Tool allowlist 真正缩小 Toolkit Surface。
-3. BYPASS 下危险文件仍 ASK。
+3. BYPASS 下 `.env / .ssh` 与课程显式扩展的 `.kube` 仍 ASK。
 4. Retrieved prompt injection 仍被标记为 untrusted data。
 
 ## 14. 最终原则
