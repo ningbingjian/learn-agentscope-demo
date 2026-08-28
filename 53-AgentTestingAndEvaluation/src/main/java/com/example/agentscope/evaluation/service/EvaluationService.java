@@ -11,6 +11,7 @@ import io.agentscope.core.message.UserMessage;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -67,7 +68,8 @@ public class EvaluationService {
         weatherTools.reset();
         model.resetUsage();
         long start = System.nanoTime();
-        RuntimeContext ctx = RuntimeContext.builder().userId("eval").sessionId(testCase.id()).build();
+        String isolatedSession = testCase.id() + "-" + UUID.randomUUID();
+        RuntimeContext ctx = RuntimeContext.builder().userId("eval").sessionId(isolatedSession).build();
         Msg reply = agent.call(new UserMessage(testCase.input()), ctx).block();
         long latencyMs = (System.nanoTime() - start) / 1_000_000;
 
