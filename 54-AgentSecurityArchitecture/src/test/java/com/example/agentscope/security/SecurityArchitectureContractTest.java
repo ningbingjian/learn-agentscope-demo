@@ -39,6 +39,8 @@ class SecurityArchitectureContractTest {
         assertThat(service.permissionDemo(".env")).containsEntry("decision", "ASK");
         assertThat(service.permissionDemo(System.getProperty("user.home") + "/.ssh/id_rsa"))
                 .containsEntry("decision", "ASK");
+        assertThat(service.permissionDemo(System.getProperty("user.home") + "/.kube/config"))
+                .containsEntry("decision", "ASK");
     }
 
     @Test
