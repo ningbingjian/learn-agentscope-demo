@@ -6,6 +6,7 @@ import io.agentscope.core.permission.PermissionDecision;
 import io.agentscope.core.tool.Tool;
 import io.agentscope.core.tool.ToolBase;
 import io.agentscope.core.tool.ToolCallParam;
+import java.util.List;
 import java.util.Map;
 import reactor.core.publisher.Mono;
 
@@ -29,7 +30,11 @@ public final class SecurityLabTools {
                     .inputSchema(Map.of(
                             "type", "object",
                             "properties", Map.of("path", Map.of("type", "string"))))
-                    .readOnly(false));
+                    .readOnly(false)
+                    // AgentScope 2.0.1 defaults include .ssh but not .kube. This lesson explicitly
+                    // extends the directory policy for Kubernetes credentials while retaining the
+                    // framework's default directory set.
+                    .dangerousDirectories(List.of(".git", ".vscode", ".idea", ".ssh", ".kube")));
         }
 
         @Override
