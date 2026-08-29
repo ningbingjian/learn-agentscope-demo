@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: production-agent
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: production-agent
+  template:
+    metadata:
+      labels:
+        app: production-agent
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: app
+          image: ghcr.io/example/learn-agentscope-production:55
+          ports:
+            - containerPort: 18081
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+            - name: MODEL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: production-agent-secrets
+                  key: model-api-key
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 18081
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 18081
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-c", "sleep 10"]
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "2"
+              memory: "2Gi"
