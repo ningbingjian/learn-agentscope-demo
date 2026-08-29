@@ -1,0 +1,26 @@
+[
+  {
+    "id": "weather-beijing",
+    "input": "What is the weather in Beijing?",
+    "expectedTool": "get_weather",
+    "expectedCity": "Beijing",
+    "expectedTextContains": "Beijing:sunny",
+    "maxTotalTokens": 60
+  },
+  {
+    "id": "weather-shanghai",
+    "input": "What is the weather in Shanghai?",
+    "expectedTool": "get_weather",
+    "expectedCity": "Shanghai",
+    "expectedTextContains": "Shanghai:sunny",
+    "maxTotalTokens": 60
+  },
+  {
+    "id": "greeting",
+    "input": "hello",
+    "expectedTool": null,
+    "expectedCity": null,
+    "expectedTextContains": "hello from evaluated agent",
+    "maxTotalTokens": 30
+  }
+]
