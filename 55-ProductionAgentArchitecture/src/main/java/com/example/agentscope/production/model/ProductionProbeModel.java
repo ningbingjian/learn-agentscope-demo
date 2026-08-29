@@ -23,7 +23,7 @@ public final class ProductionProbeModel implements Model {
 
     @Override
     public Flux<ChatResponse> stream(List<Msg> messages, List<ToolSchema> tools, GenerateOptions options) {
-        ToolResultBlock toolResult = latestToolResult(messages);
+        ToolResultBlock toolResult = latestToolResultAfterLatestUser(messages);
         if (toolResult != null) {
             String output = toolResult.getOutput().stream()
                     .filter(TextBlock.class::isInstance)
@@ -73,21 +73,26 @@ public final class ProductionProbeModel implements Model {
     }
 
     private static String latestUserText(List<Msg> messages) {
-        if (messages == null) return "";
-        for (int i = messages.size() - 1; i >= 0; i--) {
-            Msg msg = messages.get(i);
-            if (msg.getRole() == MsgRole.USER) return msg.getTextContent();
-        }
-        return "";
+        int index = latestUserIndex(messages);
+        return index < 0 ? "" : messages.get(index).getTextContent();
     }
 
-    private static ToolResultBlock latestToolResult(List<Msg> messages) {
-        if (messages == null) return null;
-        for (int i = messages.size() - 1; i >= 0; i--) {
+    private static ToolResultBlock latestToolResultAfterLatestUser(List<Msg> messages) {
+        if (messages == null || messages.isEmpty()) return null;
+        int userIndex = latestUserIndex(messages);
+        for (int i = messages.size() - 1; i > userIndex; i--) {
             List<ToolResultBlock> results = messages.get(i).getContentBlocks(ToolResultBlock.class);
             if (!results.isEmpty()) return results.get(results.size() - 1);
         }
         return null;
+    }
+
+    private static int latestUserIndex(List<Msg> messages) {
+        if (messages == null) return -1;
+        for (int i = messages.size() - 1; i >= 0; i--) {
+            if (messages.get(i).getRole() == MsgRole.USER) return i;
+        }
+        return -1;
     }
 
     @Override
