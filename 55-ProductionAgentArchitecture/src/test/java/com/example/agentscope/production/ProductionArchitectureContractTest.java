@@ -45,6 +45,21 @@ class ProductionArchitectureContractTest {
     }
 
     @Test
+    void nextTurnDoesNotReusePreviousTurnToolResult() {
+        String id = UUID.randomUUID().toString();
+        String sessionId = "multi-" + id;
+        ProductionChatService.ChatResult first = chatService.chat(
+                new ProductionChatService.ChatRequest("alice", sessionId, "r1-" + id, "check order A1001"));
+        ProductionChatService.ChatResult second = chatService.chat(
+                new ProductionChatService.ChatRequest("alice", sessionId, "r2-" + id, "hello again"));
+
+        assertThat(first.response()).contains("SHIPPED");
+        assertThat(second.response()).contains("production demo response");
+        assertThat(second.response()).doesNotContain("SHIPPED");
+        assertThat(tools.calls()).isEqualTo(1);
+    }
+
+    @Test
     void sameRequestIdIsIdempotentAndDoesNotRunAgentTwice() {
         String id = UUID.randomUUID().toString();
         ProductionChatService.ChatRequest request =
