@@ -72,7 +72,7 @@ public class ProductionChatService {
                 .sessionId(request.sessionId())
                 .put("requestId", request.requestId())
                 .build();
-        Msg reply = agent.call(new UserMessage(modelInput), ctx).block();
+        Msg reply = agent.call(List.of(new UserMessage(modelInput)), ctx).block();
         String response = reply == null ? "" : reply.getTextContent();
         ChatUsage usage = reply == null ? null : reply.getUsage();
         int inputTokens = usage == null ? 0 : usage.getInputTokens();
