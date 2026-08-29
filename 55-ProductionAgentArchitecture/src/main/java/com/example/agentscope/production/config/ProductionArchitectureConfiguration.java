@@ -7,28 +7,20 @@ import io.agentscope.core.ReActAgent;
 import io.agentscope.core.tool.Toolkit;
 import io.agentscope.extensions.mysql.store.JdbcStore;
 import javax.sql.DataSource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 @Configuration(proxyBeanMethods = false)
 public class ProductionArchitectureConfiguration {
 
     @Bean
-    DataSource lesson55DataSource() {
-        DriverManagerDataSource ds = new DriverManagerDataSource();
-        ds.setDriverClassName("org.h2.Driver");
-        ds.setUrl("jdbc:h2:mem:agentscope_production;MODE=MySQL;DB_CLOSE_DELAY=-1");
-        ds.setUsername("sa");
-        ds.setPassword("");
-        return ds;
-    }
-
-    @Bean
-    JdbcStore productionRequestStore(DataSource lesson55DataSource) {
-        return JdbcStore.builder(lesson55DataSource)
+    JdbcStore productionRequestStore(
+            DataSource dataSource,
+            @Value("${lesson55.store.initialize-schema:true}") boolean initializeSchema) {
+        return JdbcStore.builder(dataSource)
                 .tableName("lesson55_request_store")
-                .initializeSchema(true)
+                .initializeSchema(initializeSchema)
                 .build();
     }
 
