@@ -67,6 +67,9 @@
         <module>46-AgentTeams</module>
         <module>47-AsyncToolAndWakeup</module>
         <module>48-AdvancedPermissionAndSecurity</module>
+        <module>49-ModelRuntimeDeepDive</module>
+        <module>50-HookAndRuntimeExtension</module>
+        <module>51-ContextBudgetAndCompactionDeepDive</module>
     </modules>
 
     <properties>
