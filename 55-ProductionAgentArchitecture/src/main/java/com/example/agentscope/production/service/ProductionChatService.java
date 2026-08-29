@@ -44,6 +44,20 @@ public class ProductionChatService {
             return raced != null ? fromStored(raced, true) : processingDuplicate(request);
         }
 
+        try {
+            return executeClaimed(request, namespace);
+        } catch (RuntimeException e) {
+            requestStore.put(
+                    namespace,
+                    request.requestId(),
+                    Map.of(
+                            "status", "FAILED",
+                            "errorType", e.getClass().getSimpleName()));
+            throw e;
+        }
+    }
+
+    private ChatResult executeClaimed(ChatRequest request, List<String> namespace) {
         ApplicationKnowledgeService.RetrievedContext retrieved = knowledgeService.retrieve(request.message());
         SkillSecurityScanner.ScanResult scan =
                 SkillSecurityScanner.scanSingleFile(retrieved.source(), retrieved.text());
@@ -83,9 +97,12 @@ public class ProductionChatService {
     private static ChatResult fromStored(StoreItem item, boolean duplicate) {
         Map<String, Object> v = item.value();
         String status = String.valueOf(v.getOrDefault("status", "PROCESSING"));
+        String fallback = "FAILED".equals(status)
+                ? "request previously failed"
+                : "request is already processing";
         return new ChatResult(
                 item.key(), status, duplicate,
-                String.valueOf(v.getOrDefault("response", "request is already processing")),
+                String.valueOf(v.getOrDefault("response", fallback)),
                 String.valueOf(v.getOrDefault("retrievalSource", "pending")),
                 String.valueOf(v.getOrDefault("retrievalTrust", "UNTRUSTED_DATA")),
                 String.valueOf(v.getOrDefault("retrievalVerdict", "PENDING")),
