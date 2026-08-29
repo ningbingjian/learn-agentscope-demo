@@ -1,0 +1,6 @@
+lesson55:
+  store:
+    initialize-schema: false
+
+# Production must provide SPRING_DATASOURCE_URL / USERNAME / PASSWORD.
+# Schema creation should be owned by migration tooling rather than application startup.
