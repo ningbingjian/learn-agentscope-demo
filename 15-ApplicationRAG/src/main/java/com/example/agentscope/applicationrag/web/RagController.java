@@ -43,7 +43,7 @@ public class RagController {
                 .userId(request.userId())
                 .sessionId(request.sessionId())
                 .build();
-        Msg reply = agent.call(new UserMessage(prompt), context).block();
+        Msg reply = agent.call(prompt, context).block();
         if (reply == null) {
             throw new IllegalStateException("Agent returned no reply");
         }

@@ -7,3 +7,5 @@ target/
 **/.agentscope/**
 !**/.agentscope/workspace/
 !**/.agentscope/workspace/AGENTS.md
+.obsidian/
+.agentscope/
