@@ -21,11 +21,21 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: prod
-            - name: MODEL_API_KEY
+            - name: SPRING_DATASOURCE_URL
               valueFrom:
                 secretKeyRef:
                   name: production-agent-secrets
-                  key: model-api-key
+                  key: jdbc-url
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: production-agent-secrets
+                  key: jdbc-username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: production-agent-secrets
+                  key: jdbc-password
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
