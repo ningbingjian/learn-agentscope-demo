@@ -1,5 +1,6 @@
 package com.example.agentscope.distributedstateandstorage;
 
+import com.example.agentscope.distributedstateandstorage.store.DemoSharedAgentStateStore;
 import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.message.ContentBlock;
 import io.agentscope.core.message.Msg;
@@ -10,7 +11,7 @@ import io.agentscope.core.model.GenerateOptions;
 import io.agentscope.core.model.Model;
 import io.agentscope.core.model.ToolSchema;
 import io.agentscope.core.state.AgentState;
-import io.agentscope.core.state.InMemoryAgentStateStore;
+import io.agentscope.core.state.AgentStateStore;
 import io.agentscope.harness.agent.DistributedStore;
 import io.agentscope.harness.agent.HarnessAgent;
 import io.agentscope.harness.agent.IsolationScope;
@@ -29,7 +30,7 @@ class SharedDistributedStoreTest {
 
     @Test
     void twoReplicasShareAgentStateAndUserScopedWorkspace() {
-        InMemoryAgentStateStore stateStore = new InMemoryAgentStateStore();
+        AgentStateStore stateStore = new DemoSharedAgentStateStore();
         InMemoryStore baseStore = new InMemoryStore();
         DistributedStore shared = DistributedStore.builder()
                 .agentStateStore(stateStore)

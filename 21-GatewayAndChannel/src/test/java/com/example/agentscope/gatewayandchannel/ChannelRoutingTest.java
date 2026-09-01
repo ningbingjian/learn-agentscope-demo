@@ -16,6 +16,7 @@ import reactor.core.publisher.Flux;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,7 +29,7 @@ class ChannelRoutingTest {
     void explicitSessionsStayIsolatedBehindChatUiChannel() {
         try (HarnessAgent agent = HarnessAgent.builder()
                 .name("routing-test-agent")
-                .model(new EchoModel())
+                .model(new HistoryEchoModel())
                 .workspace(tempDir)
                 .disableMemoryHooks()
                 .disableMemoryTools()
@@ -40,17 +41,33 @@ class ChannelRoutingTest {
             chat.send(SendOptions.of("alice", "session-a"), "topic-A").block();
             chat.send(SendOptions.of("alice", "session-b"), "topic-B").block();
 
-            List<Msg> sessionA = agent.getDelegate().getAgentState("alice", "session-a").getContext();
-            List<Msg> sessionB = agent.getDelegate().getAgentState("alice", "session-b").getContext();
+            Msg sessionAReply = chat.send(
+                    SendOptions.of("alice", "session-a"),
+                    "recall-session-a"
+            ).block();
+            Msg sessionBReply = chat.send(
+                    SendOptions.of("alice", "session-b"),
+                    "recall-session-b"
+            ).block();
 
-            assertThat(sessionA).anyMatch(msg -> msg.getTextContent().contains("topic-A"));
-            assertThat(sessionA).noneMatch(msg -> msg.getTextContent().contains("topic-B"));
-            assertThat(sessionB).anyMatch(msg -> msg.getTextContent().contains("topic-B"));
-            assertThat(sessionB).noneMatch(msg -> msg.getTextContent().contains("topic-A"));
+            assertThat(sessionAReply).isNotNull();
+            assertThat(sessionBReply).isNotNull();
+            assertThat(sessionAReply.getTextContent())
+                    .contains("topic-A")
+                    .doesNotContain("topic-B");
+            assertThat(sessionBReply.getTextContent())
+                    .contains("topic-B")
+                    .doesNotContain("topic-A");
         }
     }
 
-    private static final class EchoModel implements Model {
+    /**
+     * Echoes all text currently visible to the model. This keeps the test at the
+     * ChatUiChannel/Gateway boundary instead of reaching into the delegate's
+     * internal state representation, which is not the ownership boundary of the
+     * gateway session runtime.
+     */
+    private static final class HistoryEchoModel implements Model {
 
         @Override
         public Flux<ChatResponse> stream(
@@ -58,8 +75,11 @@ class ChannelRoutingTest {
                 List<ToolSchema> tools,
                 GenerateOptions options
         ) {
-            String text = messages.isEmpty() ? "" : messages.get(messages.size() - 1).getTextContent();
-            ContentBlock content = TextBlock.builder().text("echo:" + text).build();
+            String history = messages.stream()
+                    .map(Msg::getTextContent)
+                    .filter(text -> text != null && !text.isBlank())
+                    .collect(Collectors.joining(" | "));
+            ContentBlock content = TextBlock.builder().text("history:" + history).build();
             return Flux.just(ChatResponse.builder()
                     .content(List.of(content))
                     .finishReason("stop")
@@ -68,7 +88,7 @@ class ChannelRoutingTest {
 
         @Override
         public String getModelName() {
-            return "echo-model";
+            return "history-echo-model";
         }
     }
 }

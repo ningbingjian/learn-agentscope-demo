@@ -42,7 +42,8 @@
 - `IsolationScope.USER` 和 `SESSION` 的差异；
 - 为什么同一个用户跨 session 可以共享长期文件，但会话 AgentState 仍按 session 分开；
 - Redis、MySQL、OSS 的能力差异；
-- 两个应用副本如何共享同一个状态底座。
+- 两个应用副本如何共享同一个状态底座；
+- 为什么 AgentScope 2.0.1 会拒绝 `RemoteFilesystemSpec + InMemoryAgentStateStore` 这种伪分布式组合。
 
 ---
 
@@ -81,7 +82,7 @@ HarnessAgent.builder()
 
 ---
 
-## 4. 为什么案例用 InMemory 组件
+## 4. 为什么案例不直接使用 InMemoryAgentStateStore
 
 生产通常会用：
 
@@ -91,47 +92,64 @@ MySQL/JDBC
 OSS
 ```
 
-但本课第一目标是看懂架构，所以默认使用：
+本课第一目标仍然是看懂架构，而且希望默认不依赖 Redis/MySQL 服务。但这里有一个非常重要的 AgentScope Java 2.0.1 运行时边界：
+
+```text
+RemoteFilesystemSpec
+        +
+InMemoryAgentStateStore / JsonFileAgentStateStore
+        ↓
+启动时直接拒绝
+```
+
+原因很合理：`RemoteFilesystemSpec` 表达的是多副本/共享后端语义，而内置 `InMemoryAgentStateStore` 和 `JsonFileAgentStateStore` 明确是单进程/本地实现。如果允许两者组合，代码表面像“分布式”，实际换 Pod 后会丢状态。
+
+因此本课使用：
 
 ```java
-new InMemoryAgentStateStore()
+new DemoSharedAgentStateStore()
 new InMemoryStore()
 ```
 
-再通过：
+其中 `DemoSharedAgentStateStore` **只是同一 JVM 内的教学 test double**：它实现 `AgentStateStore` 契约，并让两个独立 `HarnessAgent` 实例共享同一个 store 对象，用来观察 `DistributedStore` 的装配和跨 replica 恢复流程。
 
-```java
-DistributedStore.builder()
-```
+它不是生产分布式实现，也不能跨 JVM/Pod。生产必须替换为真实共享后端，例如 Redis/MySQL 对应的 AgentStateStore/DistributedStore。
 
-组合起来。
-
-它们不是生产分布式后端，但接口和生产扩展完全一致，可以在没有 Redis/MySQL 的机器上完成所有结构实验。
+这样既能在没有外部基础设施的机器上完成结构实验，也不会把框架明确标记为 local-only 的实现冒充生产分布式后端。
 
 ---
 
 ## 5. 一步步编码
 
-### Step 1：创建 StateStore 与 BaseStore
+### Step 1：创建教学 Shared StateStore 与 BaseStore
 
 ```java
 @Bean
-InMemoryAgentStateStore stateStore() {
-    return new InMemoryAgentStateStore();
+AgentStateStore sharedStateStore() {
+    return new DemoSharedAgentStateStore();
 }
 
 @Bean
-InMemoryStore baseStore() {
+InMemoryStore sharedBaseStore() {
     return new InMemoryStore();
 }
 ```
+
+再次强调：
+
+```text
+DemoSharedAgentStateStore = same-JVM teaching double
+InMemoryStore             = same-JVM teaching BaseStore
+```
+
+它们只是为了不启动 Redis/MySQL 时学习 API，不代表真正跨进程共享。
 
 ### Step 2：组合 DistributedStore
 
 ```java
 DistributedStore.builder()
-    .agentStateStore(stateStore)
-    .baseStore(baseStore)
+    .agentStateStore(sharedStateStore)
+    .baseStore(sharedBaseStore)
     .build();
 ```
 
@@ -156,6 +174,8 @@ HarnessAgent.builder()
         .isolationScope(IsolationScope.USER))
     .build();
 ```
+
+这里如果把 `DemoSharedAgentStateStore` 换回内置 `InMemoryAgentStateStore`，AgentScope 2.0.1 会在 Builder 校验阶段拒绝该组合。这不是测试障碍，而是在帮助你阻止错误的生产拓扑。
 
 ### Step 4：理解 RemoteFilesystemSpec
 
@@ -254,9 +274,11 @@ curl 'http://localhost:18081/api/distributed/inspect?userId=alice&sessionId=sess
 
 因为本案例使用 USER scope，`session-b` 可以看到 Alice 写入共享 `memory/shared-note.md` 的内容。
 
+注意：默认 Demo 的共享仅发生在当前应用进程中。真正启动两个独立 Pod 时，必须换成 Redis/MySQL 等共享后端。
+
 ---
 
-## 8. 自动化测试：模拟两个 Pod
+## 8. 自动化测试：在同一 JVM 模拟两个 Replica
 
 测试会构造：
 
@@ -265,10 +287,10 @@ Replica A workspace = target/replica-a
 Replica B workspace = target/replica-b
 ```
 
-两者共用：
+两者共用同一个：
 
 ```text
-InMemoryAgentStateStore
+DemoSharedAgentStateStore
 InMemoryStore
 DistributedStore
 ```
@@ -289,21 +311,27 @@ memory/shared-note.md
 
 B 用 Alice 的另一个 session 读取，验证 USER scope 的共享文件行为。
 
-这就是一个最小“两个 Pod + 共享后端”的模拟。
+这个实验验证的是：
+
+```text
+两个独立 HarnessAgent 实例
+        ↓
+共享 DistributedStore 契约
+        ↓
+State / Workspace 可被另一个实例恢复
+```
+
+它**不是**“两个真实 Pod”的网络级集成测试。真实多 Pod 验证应把后端替换成 Redis/MySQL，并在两个 JVM/容器之间执行同样场景。
 
 ---
 
 ## 9. 换成 Redis 时会发生什么
 
-生产中可以把组合替换成：
+生产中可以把教学组合替换成真实 Redis DistributedStore/AgentStateStore。
 
-```java
-DistributedStore store = RedisDistributedStore.fromJedis(jedis);
-```
+Harness 的调用模型和 `RemoteFilesystemSpec` 不需要因此重写，变化集中在基础设施后端。
 
-Harness 其他主要代码不需要重写。
-
-Redis 在 2.0.1 中覆盖最完整，适合：
+Redis 在 2.0.1 中适合承载：
 
 ```text
 AgentState
@@ -314,7 +342,7 @@ Sandbox distributed lock
 
 MySQL/JDBC 更适合已有关系数据库体系的团队。
 
-OSS 适合大容量快照/对象存储，但不适合承担分布式锁。
+OSS 适合大容量快照/对象存储，但不适合单独承担分布式锁。
 
 ---
 
@@ -331,6 +359,8 @@ distributedStore 自动注入
 ```
 
 例如显式 `.stateStore(...)` 可以覆盖 DistributedStore 提供的 stateStore。
+
+但“优先级更高”不代表“组合一定合法”：选择 `RemoteFilesystemSpec` 时，有效 AgentStateStore 仍必须满足共享/分布式语义。
 
 ---
 
@@ -359,9 +389,9 @@ TTL
 
 ## 12. 本节边界
 
-本课不启动真实 Redis/MySQL，也不讲数据库部署运维。
+本课默认不启动真实 Redis/MySQL，也不讲数据库部署运维。
 
-重点是先把：
+默认代码使用 same-JVM teaching double 学习：
 
 ```text
 HarnessAgent
@@ -371,7 +401,7 @@ DistributedStore
 State + Workspace + Snapshot + Lock
 ```
 
-这条架构链学清楚。
+生产部署必须把教学 state/base store 换成真正跨进程共享的 Redis/MySQL 等实现；不要把 `DemoSharedAgentStateStore` 当作生产组件。
 
 下一节进入：
 
