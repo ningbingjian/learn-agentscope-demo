@@ -50,7 +50,17 @@ learn-agentscope-demo
 ├── 42-SkillRepositoryBackends # Git/MySQL/PostgreSQL/Nacos Skill Repository，端口 18081
 ├── 43-EnterpriseChannels # DingTalk/Feishu/WeCom/GitHub/GitLab Channel，端口 18081
 ├── 44-EnterpriseInfrastructure # Scheduler/Nacos/Higress 企业基础设施，端口 18081
-└── 45-StudioAndTraining # AgentScope Studio 与 Online Training，端口 18081
+├── 45-StudioAndTraining # AgentScope Studio 与 Online Training，端口 18081
+├── 46-AgentTeams # application-layer Team Board、CAS 与 mailbox，端口 18081
+├── 47-AsyncToolAndWakeup # Async Tool、Registry、Inbox 与 Wakeup，端口 18081
+├── 48-AdvancedPermissionAndSecurity # Permission Engine 与安全决策边界，端口 18081
+├── 49-ModelRuntimeDeepDive # GenerateOptions、Formatter 与 Model Runtime，端口 18081
+├── 50-HookAndRuntimeExtension # Middleware / Hook / Event 扩展机制，端口 18081
+├── 51-ContextBudgetAndCompactionDeepDive # Context Budget、Compaction 与 Tool Result Eviction，端口 18081
+├── 52-StateConcurrencyAndConsistency # Session 串行、跨副本 CAS 与幂等，端口 18081
+├── 53-AgentTestingAndEvaluation # Agent 测试、评测指标与 Eval Gate，端口 18081
+├── 54-AgentSecurityArchitecture # Untrusted Data、Tool Surface 与纵深安全，端口 18081
+└── 55-ProductionAgentArchitecture # 生产级 Agent Architecture 综合项目，端口 18081
 ```
 
 每个学习模块都是完整、可独立启动的 Spring Boot 服务，模块之间没有代码依赖。
@@ -70,6 +80,8 @@ export DASHSCOPE_API_KEY="你的 DashScope API Key"
 ```
 
 `29-ModelLayerAndRegistry`、`31-ExternalToolAndHITL`、`32-SkillMarketplaceAndSelfLearning`、`33-AdminOpsControlPlane`、`34-AGUIProtocol`、`35-A2AProtocol`、`36-ChatCompletionsCompatibility`、`37-MultiModelProviders`、`38-DistributedBackends`、`39-SandboxProviders`、`40-RAGIntegrations`、`41-MemoryIntegrations`、`42-SkillRepositoryBackends`、`43-EnterpriseChannels`、`44-EnterpriseInfrastructure`、`45-StudioAndTraining` 的核心实验均不需要外部模型 API Key。第 40 课使用本地 deterministic Embedding + InMemoryStore，第 41 课只构造官方 Memory Adapter 并检查版本契约，第 42 课使用本地临时 Git 仓库做真实 clone/sync/read；第 43 课只测试 Channel Adapter 与公共防护层，第 44 课只构造调度配置和真实基础设施类型，第 45 课只 build TrainingRunner、不 start，也不初始化 Studio 网络连接。
+
+第 46-55 课的核心实验也默认不依赖外部模型 API Key：课程使用 application-layer 协调、deterministic Model、H2/JdbcStore、真实 AgentScope Runtime 契约或本地 Eval/Security 组件来稳定验证行为；涉及生产模型、共享数据库、远程 Sandbox 等部分会在各模块 README 中明确标记为生产替换项。
 
 环境变量只对当前终端会话生效，不会写入代码或提交到 GitHub。
 
@@ -489,3 +501,93 @@ AgentScope Java 2.0.1 的旧 `GenericRAGHook` 已 deprecated/forRemoval，本节
 
 学习 AgentScope Studio 的消息/trace/HITL 调试链路与 `TrainingRunner` 的线上采样、reward、Trinity commit 闭环。核心测试只 build `TrainingRunner`、不 `start()`，也不初始化 Studio 网络连接。见
 [`45-StudioAndTraining/README.md`](45-StudioAndTraining/README.md)。
+
+## 46-AgentTeams
+
+```bash
+./mvnw -pl 46-AgentTeams spring-boot:run
+```
+
+AgentScope Java 2.0.1 尚未提供后续版本中的官方 AgentTeams Runtime，因此本课不升级依赖，而是在 application layer 实现 Team Board，学习 shared task board、owner/member、CAS claim、stale writer conflict 与 mailbox/member message，并明确 SubAgent 与 Agent Team 的职责边界。见
+[`46-AgentTeams/README.md`](46-AgentTeams/README.md)。
+
+## 47-AsyncToolAndWakeup
+
+```bash
+./mvnw -pl 47-AsyncToolAndWakeup spring-boot:run
+```
+
+使用 2.0.1 真实 Harness API 学习 `AsyncToolMiddleware`、`AsyncToolRegistry`、`InboxMiddleware`、`MessageBus` 与 wakeup：长耗时 Tool 超过 offload timeout 后先返回 placeholder，后台完成后把真实结果写入 registry/inbox 并唤醒对应 session。见
+[`47-AsyncToolAndWakeup/README.md`](47-AsyncToolAndWakeup/README.md)。
+
+## 48-AdvancedPermissionAndSecurity
+
+```bash
+./mvnw -pl 48-AdvancedPermissionAndSecurity spring-boot:run
+```
+
+深入 `PermissionEngine` 的 DEFAULT / ACCEPT_EDITS / EXPLORE / BYPASS / DONT_ASK 模式、ALLOW/ASK/DENY 规则顺序、dangerous path 防护与 runtime rule 更新，并验证 safety decision 在 BYPASS 下仍不能被普通兜底绕过。见
+[`48-AdvancedPermissionAndSecurity/README.md`](48-AdvancedPermissionAndSecurity/README.md)。
+
+## 49-ModelRuntimeDeepDive
+
+```bash
+./mvnw -pl 49-ModelRuntimeDeepDive spring-boot:run
+```
+
+深入 Model Runtime：学习 `GenerateOptions` 与请求级 merge、`Formatter` 的消息/响应/参数/Tool Schema 转换职责、自定义 `Model#stream()`、ThinkingBlock 与多模态 ContentBlock，并区分模型侧 parallel tool calls 与 Tool 执行侧 concurrencySafe。见
+[`49-ModelRuntimeDeepDive/README.md`](49-ModelRuntimeDeepDive/README.md)。
+
+## 50-HookAndRuntimeExtension
+
+```bash
+./mvnw -pl 50-HookAndRuntimeExtension spring-boot:run
+```
+
+统一比较 Middleware、Legacy Hook、System Hook 与 AgentEvent 的运行时扩展边界；按 2.0.1 明确旧 `Hook` 已 deprecated/forRemoval，新扩展优先使用 `MiddlewareBase`，并实验其生命周期、order 与 system hook 构造时复制语义。见
+[`50-HookAndRuntimeExtension/README.md`](50-HookAndRuntimeExtension/README.md)。
+
+## 51-ContextBudgetAndCompactionDeepDive
+
+```bash
+./mvnw -pl 51-ContextBudgetAndCompactionDeepDive spring-boot:run
+```
+
+从“会做 summary”升级到 Context Engineering：区分模型窗口、Workspace、历史 Compaction 与 Tool Result Eviction 四种预算，验证 dynamic compaction 默认公式，并用真实 `ToolResultEvictionMiddleware` 演示巨型 Tool Result 落盘 + placeholder 的 Width/Depth 治理。见
+[`51-ContextBudgetAndCompactionDeepDive/README.md`](51-ContextBudgetAndCompactionDeepDive/README.md)。
+
+## 52-StateConcurrencyAndConsistency
+
+```bash
+./mvnw -pl 52-StateConcurrencyAndConsistency spring-boot:run
+```
+
+把会话并发、State 与 DistributedStore 串成生产一致性模型：验证同一 `(userId, sessionId)` 在同 Agent 实例内串行、不同 session 可并发；再使用官方 `JdbcStore.putIfVersion()` 验证跨 JVM/Pod CAS 与 create-if-absent 幂等 claim，并明确 CAS、分布式锁和多记录事务的边界。见
+[`52-StateConcurrencyAndConsistency/README.md`](52-StateConcurrencyAndConsistency/README.md)。
+
+## 53-AgentTestingAndEvaluation
+
+```bash
+./mvnw -pl 53-AgentTestingAndEvaluation spring-boot:run
+```
+
+AgentScope Java 2.0.1 没有独立 Eval Framework，本课把评测编排放在 application layer，同时真实驱动 `ReActAgent / Toolkit / RuntimeContext / ToolResult / ChatUsage`，建立版本化 Dataset、Tool/参数/答案/Token/延迟/成本 Scorer 与可作为发布门禁的 Eval Gate。见
+[`53-AgentTestingAndEvaluation/README.md`](53-AgentTestingAndEvaluation/README.md)。
+
+## 54-AgentSecurityArchitecture
+
+```bash
+./mvnw -pl 54-AgentSecurityArchitecture spring-boot:run
+```
+
+把 Permission 放回完整纵深防御：外部 Web/PDF/RAG/Email/Tool Result 一律视为 untrusted data，结合真实 `SkillSecurityScanner`、`ToolFilter + ToolsConfig`、`PermissionEngine`、敏感路径、Sandbox、Secret Boundary、MCP trust、SSRF/Egress、Audit 与 Security Eval 建立安全架构。见
+[`54-AgentSecurityArchitecture/README.md`](54-AgentSecurityArchitecture/README.md)。
+
+## 55-ProductionAgentArchitecture
+
+```bash
+./mvnw -pl 55-ProductionAgentArchitecture spring-boot:run
+```
+
+最终综合项目把前面能力收敛为可运行 production slice：requestId 幂等 claim -> application-layer retrieval -> UNTRUSTED_DATA/security scan -> RuntimeContext -> ReActAgent -> read-only Tool -> Middleware telemetry -> ChatUsage -> durable result，并提供 deterministic Eval Gate、H2/local 与 MySQL/prod 边界、Docker/Kubernetes 部署文件以及生产检查清单。见
+[`55-ProductionAgentArchitecture/README.md`](55-ProductionAgentArchitecture/README.md)。
