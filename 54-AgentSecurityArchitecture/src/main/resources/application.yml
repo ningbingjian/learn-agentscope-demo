@@ -1,0 +1,5 @@
+server:
+  port: 18081
+spring:
+  application:
+    name: lesson-54-agent-security-architecture

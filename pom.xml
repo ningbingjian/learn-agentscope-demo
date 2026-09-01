@@ -70,6 +70,9 @@
         <module>49-ModelRuntimeDeepDive</module>
         <module>50-HookAndRuntimeExtension</module>
         <module>51-ContextBudgetAndCompactionDeepDive</module>
+        <module>52-StateConcurrencyAndConsistency</module>
+        <module>53-AgentTestingAndEvaluation</module>
+        <module>54-AgentSecurityArchitecture</module>
     </modules>
 
     <properties>
