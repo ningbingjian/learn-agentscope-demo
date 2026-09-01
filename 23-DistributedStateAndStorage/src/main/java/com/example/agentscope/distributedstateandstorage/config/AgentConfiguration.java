@@ -1,7 +1,8 @@
 package com.example.agentscope.distributedstateandstorage.config;
 
+import com.example.agentscope.distributedstateandstorage.store.DemoSharedAgentStateStore;
 import io.agentscope.core.model.Model;
-import io.agentscope.core.state.InMemoryAgentStateStore;
+import io.agentscope.core.state.AgentStateStore;
 import io.agentscope.harness.agent.DistributedStore;
 import io.agentscope.harness.agent.HarnessAgent;
 import io.agentscope.harness.agent.IsolationScope;
@@ -16,8 +17,8 @@ import java.nio.file.Paths;
 public class AgentConfiguration {
 
     @Bean
-    InMemoryAgentStateStore sharedStateStore() {
-        return new InMemoryAgentStateStore();
+    AgentStateStore sharedStateStore() {
+        return new DemoSharedAgentStateStore();
     }
 
     @Bean
@@ -27,7 +28,7 @@ public class AgentConfiguration {
 
     @Bean
     DistributedStore distributedStore(
-            InMemoryAgentStateStore sharedStateStore,
+            AgentStateStore sharedStateStore,
             InMemoryStore sharedBaseStore
     ) {
         return DistributedStore.builder()
