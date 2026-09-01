@@ -73,6 +73,7 @@
         <module>52-StateConcurrencyAndConsistency</module>
         <module>53-AgentTestingAndEvaluation</module>
         <module>54-AgentSecurityArchitecture</module>
+        <module>55-ProductionAgentArchitecture</module>
     </modules>
 
     <properties>

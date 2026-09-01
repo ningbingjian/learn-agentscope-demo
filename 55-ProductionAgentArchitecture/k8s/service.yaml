@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: production-agent
+spec:
+  selector:
+    app: production-agent
+  ports:
+    - name: http
+      port: 18081
+      targetPort: 18081

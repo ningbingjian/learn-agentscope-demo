@@ -1,0 +1,34 @@
+server:
+  port: 18081
+  shutdown: graceful
+
+spring:
+  application:
+    name: 55-production-agent-architecture
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  datasource:
+    url: jdbc:h2:mem:agentscope_production;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+
+lesson55:
+  store:
+    initialize-schema: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+info:
+  lesson:
+    number: 55
+    topic: production-agent-architecture
